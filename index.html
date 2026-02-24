@@ -53,6 +53,30 @@ body{
   margin-bottom:20px;
 }
 
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+@keyframes floatUp {
+  0% { opacity:1; transform: translateY(0); }
+  100% { opacity:0; transform: translateY(-60px); }
+}
+
+.pop {
+  animation: pop 0.2s ease;
+}
+
+.plusOne {
+  position:absolute;
+  color:gold;
+  font-weight:bold;
+  font-size:22px;
+  animation: floatUp 0.8s forwards;
+  pointer-events:none;
+  }
+
 .navbar{
   height:70px;
   background:#222;
@@ -116,8 +140,27 @@ function addCoin(){
   count++;
   document.getElementById("count").innerText = count;
   localStorage.setItem("loveCoin", count);
-}
 
+  const coin = document.querySelector(".coin");
+
+  // افکت پاپ
+  coin.classList.add("pop");
+  setTimeout(()=> coin.classList.remove("pop"), 200);
+
+  // +1 شناور
+  const plus = document.createElement("div");
+  plus.innerText = "+1";
+  plus.classList.add("plusOne");
+
+  const rect = coin.getBoundingClientRect();
+  plus.style.left = rect.left + rect.width/2 + "px";
+  plus.style.top = rect.top + rect.height/2 + "px";
+
+  document.body.appendChild(plus);
+
+  setTimeout(()=> plus.remove(), 800);
+  }
+  
 function showPage(pageId, btn){
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
   document.querySelectorAll(".navbtn").forEach(b => b.classList.remove("active"));
