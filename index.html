@@ -125,6 +125,8 @@ body{
   <div class="navbtn" onclick="showPage('settings', this)">Settings</div>
 </div>
 
+<canvas id="loveCoinCanvas" width="200" height="200" style="cursor:pointer;"></canvas>
+  
 <script>
 let count = localStorage.getItem("loveCoin");
 
@@ -136,6 +138,78 @@ if(count === null){
 
 document.getElementById("count").innerText = count;
 
+const canvas = document.getElementById('loveCoinCanvas');
+const ctx = canvas.getContext('2d');
+let count = localStorage.getItem("loveCoin");
+if(count===null) count = 0;
+else count = parseInt(count);
+
+document.getElementById("count").innerText = count;
+
+// تابع رسم سکه
+function drawCoin(){
+  const w = canvas.width;
+  const h = canvas.height;
+
+  ctx.clearRect(0,0,w,h);
+
+  // پس‌زمینه سورمه‌ای با گرادینت طلایی
+  const grad = ctx.createRadialGradient(w/2,h/2,w/8,w/2,h/2,w/2);
+  grad.addColorStop(0,'#FFD700'); // طلایی
+  grad.addColorStop(1,'#001F3F'); // سورمه‌ای
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(w/2,h/2,w/2-2,0,Math.PI*2);
+  ctx.fill();
+  ctx.closePath();
+
+  // خطوط نازک چرخیده
+  ctx.strokeStyle = 'rgba(255,215,0,0.6)';
+  ctx.lineWidth = 1.5;
+  for(let i=0;i<12;i++){
+    ctx.beginPath();
+    ctx.arc(w/2,h/2,(w/2-5)*(i+1)/12,0,Math.PI*2*(0.2+i*0.08));
+    ctx.stroke();
+  }
+
+  // قلب طلایی وسط
+  ctx.fillStyle = '#FFD700';
+  ctx.beginPath();
+  ctx.moveTo(w/2,h/2+10);
+  ctx.bezierCurveTo(w/2+15,h/2-10, w/2+45,h/2+20, w/2,h/2+40);
+  ctx.bezierCurveTo(w/2-45,h/2+20, w/2-15,h/2-10, w/2,h/2+10);
+  ctx.fill();
+  ctx.closePath();
+
+  // H کوچک بالای قلب
+  ctx.fillStyle='#FFD700';
+  ctx.font='bold 16px Arial';
+  ctx.textAlign='center';
+  ctx.fillText('H',w/2,h/2-20);
+
+  // LOVE پایین قلب
+  ctx.font='bold 20px Arial';
+  ctx.fillText('LOVE',w/2,h/2+60);
+
+  // سایه 3D ساده
+  ctx.shadowColor = 'rgba(0,0,0,0.5)';
+  ctx.shadowBlur = 10;
+  ctx.shadowOffsetX = 3;
+  ctx.shadowOffsetY = 3;
+}
+drawCoin();
+
+// جمع کردن سکه با کلیک
+canvas.addEventListener('click',()=>{
+  count++;
+  localStorage.setItem('loveCoin', count);
+  document.getElementById("count").innerText = count;
+
+  // افکت پاپ
+  canvas.style.transform='scale(1.1)';
+  setTimeout(()=> canvas.style.transform='scale(1)',100);
+});
+  
 function addCoin(){
   count++;
   document.getElementById("count").innerText = count;
