@@ -31,32 +31,9 @@ body{
 }
 
 .counter{
-  font-size:26px;
-  margin-bottom:40px; /* فاصله بیشتر از سکه */
+  font-size:28px;
   font-weight:bold;
-}
-
-.energyBox{
-  width:220px;
-  height:12px;
-  background:#222;
-  border-radius:10px;
-  overflow:hidden;
-  margin-top:20px; /* فاصله از سکه */
-}
-
-.energyFill{
-  height:100%;
-  width:100%;
-  background:linear-gradient(90deg, gold, orange);
-  transition:width 0.2s;
-}
-
-.energyText{
-  font-size:14px;
-  margin-top:5px;
-  color:#aaa;
-  text-align:center;
+  margin-bottom:15px; /* فاصله کمی بالای سکه */
 }
 
 .coinImg{
@@ -66,7 +43,9 @@ body{
   cursor:pointer;
   transition:transform 0.1s;
   filter: drop-shadow(0 0 25px gold);
-  margin-bottom:10px; /* فاصله تا انرژی */
+  user-select:none;
+  -webkit-user-drag:none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .plusOne {
@@ -81,6 +60,32 @@ body{
 @keyframes floatUp {
   0% { opacity:1; transform: translateY(0); }
   100% { opacity:0; transform: translateY(-60px); }
+}
+
+.energyBox{
+  width:220px;
+  height:12px;
+  background:#222;
+  border-radius:10px;
+  overflow:hidden;
+  position:absolute;
+  bottom:80px; /* پایین صفحه */
+}
+
+.energyFill{
+  height:100%;
+  width:100%;
+  background:linear-gradient(90deg, gold, orange);
+  transition:width 0.2s;
+}
+
+.energyText{
+  font-size:14px;
+  color:#aaa;
+  position:absolute;
+  bottom:60px;
+  text-align:center;
+  width:100%;
 }
 
 .navbar{
@@ -108,12 +113,15 @@ body{
 <body>
 
 <div id="home" class="page active">
+  <!-- تعداد سکه کمی بالاتر از سکه -->
   <div class="counter">Love Coin: <span id="count">0</span></div>
 
+  <!-- سکه -->
   <img id="loveCoinImg"
        src="https://cdn.imgurl.ir/uploads/p719635__.png"
        class="coinImg">
 
+  <!-- Energy پایین صفحه -->
   <div class="energyBox">
     <div id="energyFill" class="energyFill"></div>
   </div>
@@ -122,6 +130,11 @@ body{
   </div>
 </div>
 
+<div id="shop" class="page">
+  <h2>Shop</h2>
+  <p>Coming Soon...</p>
+</div>
+  
 <div id="profile" class="page">
   <h2>Profile</h2>
   <p>Coming Soon...</p>
@@ -161,16 +174,45 @@ function updateEnergyUI(){
   localStorage.setItem("energy", energy);
 }
 
-coinImg.addEventListener("click", ()=>{
+// چند انگشتی
+coinImg.addEventListener("touchstart", (e)=>{
+  e.preventDefault();
+  const touches = e.touches.length;
 
   if(energy <= 0) return;
 
-  count++;
-  energy--;
+  count += touches;
+  energy -= touches;
+  if(energy<0) energy=0;
 
   localStorage.setItem("loveCoin", count);
-
   countEl.innerText = count;
+  updateEnergyUI();
+
+  coinImg.style.transform="scale(1.1)";
+  setTimeout(()=>coinImg.style.transform="",100);
+
+  // افکت پاپ برای هر انگشت
+  for(let i=0;i<touches;i++){
+    const plus=document.createElement("div");
+    plus.innerText="+1";
+    plus.classList.add("plusOne");
+
+    const rect=coinImg.getBoundingClientRect();
+    plus.style.left=rect.left+rect.width/2 + (i*10) + "px";
+    plus.style.top=rect.top+rect.height/2 + "px";
+    document.getElementById("home").appendChild(plus);
+    setTimeout(()=>plus.remove(),800);
+  }
+});
+
+// کلیک موس برای تست روی دسکتاپ
+coinImg.addEventListener("click", ()=>{
+  if(energy <=0) return;
+  count++;
+  energy--;
+  localStorage.setItem("loveCoin", count);
+  countEl.innerText=count;
   updateEnergyUI();
 
   coinImg.style.transform="scale(1.1)";
@@ -179,11 +221,9 @@ coinImg.addEventListener("click", ()=>{
   const plus=document.createElement("div");
   plus.innerText="+1";
   plus.classList.add("plusOne");
-
   const rect=coinImg.getBoundingClientRect();
   plus.style.left=rect.left+rect.width/2+"px";
   plus.style.top=rect.top+rect.height/2+"px";
-
   document.getElementById("home").appendChild(plus);
   setTimeout(()=>plus.remove(),800);
 });
