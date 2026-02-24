@@ -326,28 +326,21 @@ function addCoin(x,y){
     coinImg.style.transform = "translate(0,0) scale(1)";
   },120);
 
-  const plus=document.createElement("div");
-  plus.innerText="+1";
   if(localStorage.getItem("setting_floatingText") !== "false"){
+  const plus = document.createElement("div");
+  plus.innerText = "+1";
   plus.classList.add("plusOne");
-  }
   plus.style.left = (x - 10) + "px";
   plus.style.top = (y - 20) + "px";
   document.getElementById("home").appendChild(plus);
   setTimeout(()=>plus.remove(),1000);
+  }
 
   if(localStorage.getItem("setting_vibration") === "true"){
   if(navigator.vibrate){
     navigator.vibrate(10);
   }
 }
-  
-  if(localStorage.getItem("setting_autoEnergy") !== "false"){
-  if(energy < maxEnergy){
-    energy++;
-    updateUI();
-  }
-  }
 }
 
 let touchUsed = false;
@@ -370,9 +363,11 @@ coinImg.addEventListener("click", (e)=>{
 });
 
 setInterval(()=>{
-  if(energy < maxEnergy){
-    energy++;
-    updateUI();
+  if(localStorage.getItem("setting_autoEnergy") !== "false"){
+    if(energy < maxEnergy){
+      energy++;
+      updateUI();
+    }
   }
 },1000);
 
