@@ -176,12 +176,10 @@ function updateEnergyUI(){
 // چند انگشتی + هرجا روی سکه
 function handleTouchOrClick(e){
   e.preventDefault();
-  let touches = 1;
   let positions = [];
 
   if(e.type === 'touchstart'){
-    touches = e.touches.length;
-    for(let i=0;i<touches;i++){
+    for(let i=0;i<e.touches.length;i++){
       positions.push({x:e.touches[i].clientX, y:e.touches[i].clientY});
     }
   }else{
@@ -190,18 +188,21 @@ function handleTouchOrClick(e){
 
   if(energy <=0) return;
 
-  count += positions.length;
-  energy -= positions.length;
-  if(energy<0) energy=0;
-  localStorage.setItem("loveCoin", count);
-  countEl.innerText = count;
-  updateEnergyUI();
-
-  coinImg.style.transform="scale(1.1)";
-  setTimeout(()=>coinImg.style.transform="",100);
-
-  // افکت +1 دقیقاً همانجا که لمس شد
+  // به ازای هر لمس، 1 سکه
   positions.forEach(pos=>{
+    count++;
+    energy--;
+    if(energy<0) energy=0;
+
+    localStorage.setItem("loveCoin", count);
+    countEl.innerText = count;
+    updateEnergyUI();
+
+    // افکت پاپ روی سکه
+    coinImg.style.transform="scale(1.1)";
+    setTimeout(()=>coinImg.style.transform="",100);
+
+    // +1 دقیقا همانجا که لمس شد
     const plus=document.createElement("div");
     plus.innerText="+1";
     plus.classList.add("plusOne");
@@ -210,7 +211,7 @@ function handleTouchOrClick(e){
     document.getElementById("home").appendChild(plus);
     setTimeout(()=>plus.remove(),800);
   });
-}
+  }
 
 coinImg.addEventListener("touchstart", handleTouchOrClick);
 coinImg.addEventListener("click", handleTouchOrClick);
