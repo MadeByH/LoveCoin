@@ -172,53 +172,47 @@ function updateEnergyUI(){
   localStorage.setItem("energy", energy);
 }
 
-// Flag برای جلوگیری از double counting click بعد touch
-let touchActive = false;
+let touchUsed = false;
 
-function processTouches(positions){
-  positions.forEach(pos=>{
-    if(energy <=0) return;
+function addCoin(x,y){
+  if(energy <= 0) return;
 
-    count++;      // هر انگشت +1
-    energy--;
-    if(energy<0) energy=0;
+  count++;
+  energy--;
 
-    localStorage.setItem("loveCoin", count);
-    countEl.innerText = count;
-    updateEnergyUI();
+  localStorage.setItem("loveCoin", count);
+  countEl.innerText = count;
+  updateEnergyUI();
 
-    coinImg.style.transform="scale(1.1)";
-    setTimeout(()=>coinImg.style.transform="",100);
+  coinImg.style.transform="scale(1.1)";
+  setTimeout(()=>coinImg.style.transform="",100);
 
-    const plus=document.createElement("div");
-    plus.innerText="+1";
-    plus.classList.add("plusOne");
-    plus.style.left = pos.x + "px";
-    plus.style.top = pos.y + "px";
-    document.getElementById("home").appendChild(plus);
-    setTimeout(()=>plus.remove(),800);
-  });
+  const plus=document.createElement("div");
+  plus.innerText="+1";
+  plus.classList.add("plusOne");
+  plus.style.left = x + "px";
+  plus.style.top = y + "px";
+  document.getElementById("home").appendChild(plus);
+  setTimeout(()=>plus.remove(),800);
 }
 
-// Touch
+// ✅ درست‌ترین روش چند انگشتی
 coinImg.addEventListener("touchstart", (e)=>{
   e.preventDefault();
-  touchActive = true;
+  touchUsed = true;
 
-  const positions = [];
-  for(let i=0;i<e.touches.length;i++){
-    positions.push({x:e.touches[i].clientX, y:e.touches[i].clientY});
+  for(let i=0;i<e.changedTouches.length;i++){
+    const touch = e.changedTouches[i];
+    addCoin(touch.clientX, touch.clientY);
   }
 
-  processTouches(positions);
-  // پس از 50ms flag برگردد
-  setTimeout(()=> touchActive = false, 50);
+  setTimeout(()=> touchUsed = false, 50);
 });
 
-// Click دسکتاپ
+// کلیک فقط برای دسکتاپ
 coinImg.addEventListener("click", (e)=>{
-  if(touchActive) return; // اگر touch بود، click نادیده گرفته می‌شود
-  processTouches([{x:e.clientX, y:e.clientY}]);
+  if(touchUsed) return;
+  addCoin(e.clientX, e.clientY);
 });
 
 // شارژ خودکار
@@ -236,6 +230,6 @@ function showPage(pageId, btn){
   btn.classList.add("active");
 }
 </script>
-
+  
 </body>
 </html>
