@@ -30,7 +30,6 @@ body{
   display:flex;
 }
 
-/* تعداد سکه کمی بالاتر از سکه */
 .counter{
   font-size:28px;
   font-weight:bold;
@@ -173,38 +172,24 @@ function updateEnergyUI(){
   localStorage.setItem("energy", energy);
 }
 
-// چند انگشتی + هرجا روی سکه
-function handleTouchOrClick(e){
-  e.preventDefault();
-  let positions = [];
+// Flag برای جلوگیری از double counting click بعد touch
+let touchActive = false;
 
-  if(e.type === 'touchstart'){
-    for(let i=0;i<e.touches.length;i++){
-      positions.push({x:e.touches[i].clientX, y:e.touches[i].clientY});
-    }
-  }else{
-    positions.push({x:e.clientX, y:e.clientY});
-  }
-
-  if(energy <=0) return;
-
-  // به ازای هر لمس، 1 سکه
+function processTouches(positions){
   positions.forEach(pos=>{
-    if(energy <=0) return; // هر انگشت فقط اگر انرژی هست اجرا میشه
+    if(energy <=0) return;
 
     count++;      // هر انگشت +1
-    energy--;     // هر انگشت -1
+    energy--;
     if(energy<0) energy=0;
 
     localStorage.setItem("loveCoin", count);
     countEl.innerText = count;
     updateEnergyUI();
 
-    // افکت پاپ روی سکه
     coinImg.style.transform="scale(1.1)";
     setTimeout(()=>coinImg.style.transform="",100);
 
-    // +1 همان نقطه لمس
     const plus=document.createElement("div");
     plus.innerText="+1";
     plus.classList.add("plusOne");
@@ -212,11 +197,29 @@ function handleTouchOrClick(e){
     plus.style.top = pos.y + "px";
     document.getElementById("home").appendChild(plus);
     setTimeout(()=>plus.remove(),800);
-});
+  });
+}
+
+// Touch
+coinImg.addEventListener("touchstart", (e)=>{
+  e.preventDefault();
+  touchActive = true;
+
+  const positions = [];
+  for(let i=0;i<e.touches.length;i++){
+    positions.push({x:e.touches[i].clientX, y:e.touches[i].clientY});
   }
 
-coinImg.addEventListener("touchstart", handleTouchOrClick);
-coinImg.addEventListener("click", handleTouchOrClick);
+  processTouches(positions);
+  // پس از 50ms flag برگردد
+  setTimeout(()=> touchActive = false, 50);
+});
+
+// Click دسکتاپ
+coinImg.addEventListener("click", (e)=>{
+  if(touchActive) return; // اگر touch بود، click نادیده گرفته می‌شود
+  processTouches([{x:e.clientX, y:e.clientY}]);
+});
 
 // شارژ خودکار
 setInterval(()=>{
