@@ -24,42 +24,46 @@ body{
   align-items:center;
   flex-direction:column;
   position:relative;
+  padding-bottom:60px;
 }
 
 .active{
   display:flex;
 }
 
+/* کمی بالاتر رفتن سکه و عدد */
 .counter{
-  font-size:28px;
+  font-size:34px;
   font-weight:bold;
-  margin-bottom:30px; /* فاصله بیشتر از نور دور سکه */
+  margin-bottom:40px;
+  margin-top:-40px;
 }
 
 .coinImg{
-  width:230px;
-  height:230px;
+  width:240px;
+  height:240px;
   object-fit:contain;
   cursor:pointer;
-  transition:transform 0.1s;
-  filter: drop-shadow(0 0 25px gold);
+  transition:transform 0.15s;
+  filter: drop-shadow(0 0 30px gold);
   user-select:none;
   -webkit-user-drag:none;
   -webkit-tap-highlight-color: transparent;
 }
 
+/* +1 بلندتر بره بالا */
 .plusOne {
   position:absolute;
   color:gold;
   font-weight:bold;
-  font-size:22px;
-  animation: floatUp 0.8s forwards;
+  font-size:26px;
+  animation: floatUp 1.2s forwards;
   pointer-events:none;
 }
 
 @keyframes floatUp {
   0% { opacity:1; transform: translateY(0); }
-  100% { opacity:0; transform: translateY(-60px); }
+  100% { opacity:0; transform: translateY(-120px); }
 }
 
 .energyBox{
@@ -69,7 +73,7 @@ body{
   border-radius:10px;
   overflow:hidden;
   position:absolute;
-  bottom:80px;
+  bottom:90px;
 }
 
 .energyFill{
@@ -83,7 +87,7 @@ body{
   font-size:14px;
   color:#aaa;
   position:absolute;
-  bottom:60px;
+  bottom:70px;
   text-align:center;
   width:100%;
 }
@@ -113,7 +117,7 @@ body{
 <body>
 
 <div id="home" class="page active">
-  <div class="counter">Love Coin: <span id="count">0</span></div>
+  <div class="counter"><span id="count">0</span></div>
 
   <img id="loveCoinImg"
        src="https://cdn.imgurl.ir/uploads/p719635__.png"
@@ -127,35 +131,13 @@ body{
   </div>
 </div>
 
-<div id="shop" class="page">
-  <h2>Shop</h2>
-  <p>Coming Soon...</p>
-</div>
-  
-<div id="profile" class="page">
-  <h2>Profile</h2>
-  <p>Coming Soon...</p>
-</div>
-
-<div id="settings" class="page">
-  <h2>Settings</h2>
-  <p>Coming Soon...</p>
-</div>
-
 <div class="navbar">
-  <div class="navbtn active" onclick="showPage('home', this)">Home</div>
-  <div class="navbtn" onclick="showPage('shop', this)">Shop</div>
-  <div class="navbtn" onclick="showPage('profile', this)">Profile</div>
-  <div class="navbtn" onclick="showPage('settings', this)">Settings</div>
+  <div class="navbtn active">Home</div>
 </div>
 
 <script>
-let count = localStorage.getItem("loveCoin");
-count = count ? parseInt(count) : 0;
-
-let energy = localStorage.getItem("energy");
-energy = energy ? parseInt(energy) : 100;
-
+let count = parseInt(localStorage.getItem("loveCoin")) || 0;
+let energy = parseInt(localStorage.getItem("energy")) || 100;
 const maxEnergy = 100;
 
 const countEl = document.getElementById("count");
@@ -163,16 +145,22 @@ const energyText = document.getElementById("energyText");
 const energyFill = document.getElementById("energyFill");
 const coinImg = document.getElementById("loveCoinImg");
 
-countEl.innerText = count;
-updateEnergyUI();
+updateUI();
 
-function updateEnergyUI(){
-  energyText.innerText = energy;
-  energyFill.style.width = (energy / maxEnergy * 100) + "%";
-  localStorage.setItem("energy", energy);
+function formatNumber(num){
+  if(num >= 1_000_000_000) return (num/1_000_000_000).toFixed(2)+"B";
+  if(num >= 1_000_000) return (num/1_000_000).toFixed(2)+"M";
+  if(num >= 1_000) return (num/1_000).toFixed(2)+"K";
+  return num;
 }
 
-let touchUsed = false;
+function updateUI(){
+  countEl.innerText = formatNumber(count);
+  energyText.innerText = energy;
+  energyFill.style.width = (energy / maxEnergy * 100) + "%";
+  localStorage.setItem("loveCoin", count);
+  localStorage.setItem("energy", energy);
+}
 
 function addCoin(x,y){
   if(energy <= 0) return;
@@ -180,12 +168,18 @@ function addCoin(x,y){
   count++;
   energy--;
 
-  localStorage.setItem("loveCoin", count);
-  countEl.innerText = count;
-  updateEnergyUI();
+  // تکون خوردن سکه بر اساس جهت ضربه
+  const rect = coinImg.getBoundingClientRect();
+  const centerX = rect.left + rect.width/2;
+  const centerY = rect.top + rect.height/2;
 
-  coinImg.style.transform="scale(1.1)";
-  setTimeout(()=>coinImg.style.transform="",100);
+  const offsetX = (x - centerX) / 8;
+  const offsetY = (y - centerY) / 8;
+
+  coinImg.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(0.95)`;
+  setTimeout(()=>{
+    coinImg.style.transform = "translate(0,0) scale(1)";
+  },120);
 
   const plus=document.createElement("div");
   plus.innerText="+1";
@@ -193,43 +187,37 @@ function addCoin(x,y){
   plus.style.left = x + "px";
   plus.style.top = y + "px";
   document.getElementById("home").appendChild(plus);
-  setTimeout(()=>plus.remove(),800);
+  setTimeout(()=>plus.remove(),1200);
+
+  updateUI();
 }
 
-// ✅ درست‌ترین روش چند انگشتی
+let touchUsed = false;
+
 coinImg.addEventListener("touchstart", (e)=>{
   e.preventDefault();
   touchUsed = true;
 
   for(let i=0;i<e.changedTouches.length;i++){
-    const touch = e.changedTouches[i];
-    addCoin(touch.clientX, touch.clientY);
+    const t = e.changedTouches[i];
+    addCoin(t.clientX, t.clientY);
   }
 
   setTimeout(()=> touchUsed = false, 50);
 });
 
-// کلیک فقط برای دسکتاپ
 coinImg.addEventListener("click", (e)=>{
   if(touchUsed) return;
   addCoin(e.clientX, e.clientY);
 });
 
-// شارژ خودکار
 setInterval(()=>{
   if(energy < maxEnergy){
     energy++;
-    updateEnergyUI();
+    updateUI();
   }
 },1000);
 
-function showPage(pageId, btn){
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  document.querySelectorAll(".navbtn").forEach(b=>b.classList.remove("active"));
-  document.getElementById(pageId).classList.add("active");
-  btn.classList.add("active");
-}
 </script>
-  
 </body>
 </html>
