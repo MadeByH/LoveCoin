@@ -290,6 +290,25 @@ const clickSound = new Audio("https://uploadkon.ir/uploads/594524_26Video-۲۰۲
   
 updateUI();
 
+// ===== Smart Energy System (فقط یک بار) =====
+let lastTime = localStorage.getItem("lastEnergyTime");
+
+if(lastTime){
+  let now = Date.now();
+  let diff = Math.floor((now - lastTime) / 1000);
+  energy = Math.min(maxEnergy, energy + diff);
+}
+
+localStorage.setItem("lastEnergyTime", Date.now());
+
+setInterval(()=>{
+  if(energy < maxEnergy){
+    energy++;
+    updateUI();
+  }
+  localStorage.setItem("lastEnergyTime", Date.now());
+}, 1000);
+  
 function formatNumber(num){
   if(num >= 1_000_000_000) return (num/1_000_000_000).toFixed(2)+"B";
   if(num >= 1_000_000) return (num/1_000_000).toFixed(2)+"M";
@@ -343,25 +362,6 @@ function addCoin(x,y){
   clickSound.play();
 }
   updateUI();
-
-  // ===== Smart Energy System =====
-  let lastTime = localStorage.getItem("lastEnergyTime");
-
-  if(lastTime){
-  let now = Date.now();
-  let diff = Math.floor((now - lastTime) / 1000); // چند ثانیه گذشته
-  energy = Math.min(maxEnergy, energy + diff);
-}
-
-  localStorage.setItem("lastEnergyTime", Date.now());
-
-  setInterval(()=>{
-  if(energy < maxEnergy){
-    energy++;
-    updateUI();
-  }
-  localStorage.setItem("lastEnergyTime", Date.now());
-}, 1000);
 }
 
 let touchUsed = false;
