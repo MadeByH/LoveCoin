@@ -190,8 +190,10 @@ function handleTouchOrClick(e){
 
   // به ازای هر لمس، 1 سکه
   positions.forEach(pos=>{
-    count++;
-    energy--;
+    if(energy <=0) return; // هر انگشت فقط اگر انرژی هست اجرا میشه
+
+    count++;      // هر انگشت +1
+    energy--;     // هر انگشت -1
     if(energy<0) energy=0;
 
     localStorage.setItem("loveCoin", count);
@@ -202,7 +204,7 @@ function handleTouchOrClick(e){
     coinImg.style.transform="scale(1.1)";
     setTimeout(()=>coinImg.style.transform="",100);
 
-    // +1 دقیقا همانجا که لمس شد
+    // +1 همان نقطه لمس
     const plus=document.createElement("div");
     plus.innerText="+1";
     plus.classList.add("plusOne");
@@ -210,7 +212,7 @@ function handleTouchOrClick(e){
     plus.style.top = pos.y + "px";
     document.getElementById("home").appendChild(plus);
     setTimeout(()=>plus.remove(),800);
-  });
+});
   }
 
 coinImg.addEventListener("touchstart", handleTouchOrClick);
