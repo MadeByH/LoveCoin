@@ -84,6 +84,7 @@ body{
   height:260px;
   object-fit:contain;
   cursor:pointer;
+  will-change: transform;
   transition:transform 0.1s;
   filter: drop-shadow(0 0 40px gold);
   user-select:none;
@@ -285,7 +286,8 @@ const countEl = document.getElementById("count");
 const energyText = document.getElementById("energyText");
 const energyFill = document.getElementById("energyFill");
 const coinImg = document.getElementById("loveCoinImg");
-
+const clickSound = new Audio("https://uupload.ir/view/video_۲۰۲۶۰۲۲۴۲۲۰۶۳۷۷۳۴_by_videoshow_n95.mp3/");
+  
 updateUI();
 
 function formatNumber(num){
@@ -336,6 +338,11 @@ function addCoin(x,y){
     navigator.vibrate(10);
   }
 }
+  if(localStorage.getItem("setting_sound") === "true"){
+  clickSound.currentTime = 0;
+  clickSound.play();
+}
+  updateUI();
 }
 
 let touchUsed = false;
