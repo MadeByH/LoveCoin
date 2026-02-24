@@ -150,6 +150,55 @@ body{
   color:gold;
   font-weight:bold;
 }
+
+.setting-row{
+  width:85%;
+  max-width:400px;
+  background:#181818;
+  padding:15px 20px;
+  border-radius:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:15px;
+  border:1px solid #333;
+}
+
+.setting-row span{
+  font-size:15px;
+}
+
+.toggle{
+  width:55px;
+  height:28px;
+  background:#444;
+  border-radius:20px;
+  position:relative;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.toggle::after{
+  content:"";
+  position:absolute;
+  width:22px;
+  height:22px;
+  background:#aaa;
+  border-radius:50%;
+  top:3px;
+  left:4px;
+  transition:0.3s;
+}
+
+.toggle.active{
+  background:gold;
+}
+
+.toggle.active::after{
+  left:29px;
+  background:#111;
+}
+  
 </style>
 </head>
 
@@ -189,8 +238,26 @@ body{
 </div>
 
 <div id="settings" class="page">
-  <h2>Settings</h2>
-  <p>Coming Soon...</p>
+  <h2 style="margin-bottom:25px;">Settings</h2>
+
+<div class="setting-row">
+  <span>Vibration</span>
+  <div class="toggle" data-setting="vibration"></div>
+</div>
+
+<div class="setting-row">
+  <span>Sound Effects</span>
+  <div class="toggle" data-setting="sound"></div>
+</div>
+
+<div class="setting-row">
+  <span>Auto Energy</span>
+  <div class="toggle" data-setting="autoEnergy"></div>
+</div>
+
+<div class="setting-row">
+  <span>Floating +1</span>
+  <div class="toggle" data-setting="floatingText"></div>
 </div>
   
 <div class="navbar">
@@ -260,13 +327,26 @@ function addCoin(x,y){
 
   const plus=document.createElement("div");
   plus.innerText="+1";
+  if(localStorage.getItem("setting_floatingText") !== "false"){
   plus.classList.add("plusOne");
+  }
   plus.style.left = (x - 10) + "px";
   plus.style.top = (y - 20) + "px";
   document.getElementById("home").appendChild(plus);
   setTimeout(()=>plus.remove(),1000);
 
-  updateUI();
+  if(localStorage.getItem("setting_vibration") === "true"){
+  if(navigator.vibrate){
+    navigator.vibrate(10);
+  }
+}
+  
+  if(localStorage.getItem("setting_autoEnergy") !== "false"){
+  if(energy < maxEnergy){
+    energy++;
+    updateUI();
+  }
+  }
 }
 
 let touchUsed = false;
@@ -307,6 +387,25 @@ function showPage(pageId, btn){
   document.getElementById(pageId).classList.add("active");
   btn.classList.add("active");
 }
+
+// ===== Settings System =====
+const toggles = document.querySelectorAll(".toggle");
+
+toggles.forEach(toggle=>{
+  const key = toggle.dataset.setting;
+
+  // بارگذاری وضعیت ذخیره‌شده
+  const saved = localStorage.getItem("setting_"+key);
+  if(saved === "true"){
+    toggle.classList.add("active");
+  }
+
+  toggle.addEventListener("click", ()=>{
+    toggle.classList.toggle("active");
+    const state = toggle.classList.contains("active");
+    localStorage.setItem("setting_"+key, state);
+  });
+});
   
 </script>
 </body>
