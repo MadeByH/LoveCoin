@@ -343,6 +343,25 @@ function addCoin(x,y){
   clickSound.play();
 }
   updateUI();
+
+  // ===== Smart Energy System =====
+  let lastTime = localStorage.getItem("lastEnergyTime");
+
+  if(lastTime){
+  let now = Date.now();
+  let diff = Math.floor((now - lastTime) / 1000); // چند ثانیه گذشته
+  energy = Math.min(maxEnergy, energy + diff);
+}
+
+  localStorage.setItem("lastEnergyTime", Date.now());
+
+  setInterval(()=>{
+  if(energy < maxEnergy){
+    energy++;
+    updateUI();
+  }
+  localStorage.setItem("lastEnergyTime", Date.now());
+}, 1000);
 }
 
 let touchUsed = false;
