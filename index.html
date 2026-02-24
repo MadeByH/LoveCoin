@@ -30,10 +30,11 @@ body{
   display:flex;
 }
 
+/* تعداد سکه کمی بالاتر از سکه */
 .counter{
   font-size:28px;
   font-weight:bold;
-  margin-bottom:15px; /* فاصله کمی بالای سکه */
+  margin-bottom:30px; /* فاصله بیشتر از نور دور سکه */
 }
 
 .coinImg{
@@ -69,7 +70,7 @@ body{
   border-radius:10px;
   overflow:hidden;
   position:absolute;
-  bottom:80px; /* پایین صفحه */
+  bottom:80px;
 }
 
 .energyFill{
@@ -113,15 +114,12 @@ body{
 <body>
 
 <div id="home" class="page active">
-  <!-- تعداد سکه کمی بالاتر از سکه -->
   <div class="counter">Love Coin: <span id="count">0</span></div>
 
-  <!-- سکه -->
   <img id="loveCoinImg"
        src="https://cdn.imgurl.ir/uploads/p719635__.png"
        class="coinImg">
 
-  <!-- Energy پایین صفحه -->
   <div class="energyBox">
     <div id="energyFill" class="energyFill"></div>
   </div>
@@ -175,17 +173,26 @@ function updateEnergyUI(){
   localStorage.setItem("energy", energy);
 }
 
-// چند انگشتی
-coinImg.addEventListener("touchstart", (e)=>{
+// چند انگشتی + هرجا روی سکه
+function handleTouchOrClick(e){
   e.preventDefault();
-  const touches = e.touches.length;
+  let touches = 1;
+  let positions = [];
 
-  if(energy <= 0) return;
+  if(e.type === 'touchstart'){
+    touches = e.touches.length;
+    for(let i=0;i<touches;i++){
+      positions.push({x:e.touches[i].clientX, y:e.touches[i].clientY});
+    }
+  }else{
+    positions.push({x:e.clientX, y:e.clientY});
+  }
 
-  count += touches;
-  energy -= touches;
+  if(energy <=0) return;
+
+  count += positions.length;
+  energy -= positions.length;
   if(energy<0) energy=0;
-
   localStorage.setItem("loveCoin", count);
   countEl.innerText = count;
   updateEnergyUI();
@@ -193,43 +200,22 @@ coinImg.addEventListener("touchstart", (e)=>{
   coinImg.style.transform="scale(1.1)";
   setTimeout(()=>coinImg.style.transform="",100);
 
-  // افکت پاپ برای هر انگشت
-  for(let i=0;i<touches;i++){
+  // افکت +1 دقیقاً همانجا که لمس شد
+  positions.forEach(pos=>{
     const plus=document.createElement("div");
     plus.innerText="+1";
     plus.classList.add("plusOne");
-
-    const rect=coinImg.getBoundingClientRect();
-    plus.style.left=rect.left+rect.width/2 + (i*10) + "px";
-    plus.style.top=rect.top+rect.height/2 + "px";
+    plus.style.left = pos.x + "px";
+    plus.style.top = pos.y + "px";
     document.getElementById("home").appendChild(plus);
     setTimeout(()=>plus.remove(),800);
-  }
-});
+  });
+}
 
-// کلیک موس برای تست روی دسکتاپ
-coinImg.addEventListener("click", ()=>{
-  if(energy <=0) return;
-  count++;
-  energy--;
-  localStorage.setItem("loveCoin", count);
-  countEl.innerText=count;
-  updateEnergyUI();
+coinImg.addEventListener("touchstart", handleTouchOrClick);
+coinImg.addEventListener("click", handleTouchOrClick);
 
-  coinImg.style.transform="scale(1.1)";
-  setTimeout(()=>coinImg.style.transform="",100);
-
-  const plus=document.createElement("div");
-  plus.innerText="+1";
-  plus.classList.add("plusOne");
-  const rect=coinImg.getBoundingClientRect();
-  plus.style.left=rect.left+rect.width/2+"px";
-  plus.style.top=rect.top+rect.height/2+"px";
-  document.getElementById("home").appendChild(plus);
-  setTimeout(()=>plus.remove(),800);
-});
-
-// شارژ خودکار هر 1 ثانیه
+// شارژ خودکار
 setInterval(()=>{
   if(energy < maxEnergy){
     energy++;
