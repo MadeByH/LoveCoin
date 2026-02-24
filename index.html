@@ -364,15 +364,6 @@ coinImg.addEventListener("click", (e)=>{
   addCoin(e.clientX, e.clientY);
 });
 
-setInterval(()=>{
-  if(localStorage.getItem("setting_autoEnergy") !== "false"){
-    if(energy < maxEnergy){
-      energy++;
-      updateUI();
-    }
-  }
-},1000);
-
 function showPage(pageId, btn){
   document.querySelectorAll(".page").forEach(p=>{
     p.classList.remove("active");
