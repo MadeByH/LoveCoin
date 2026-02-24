@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Echo Of The World</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+<style>
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#111;
+  color:white;
+  display:flex;
+  flex-direction:column;
+  height:100vh;
+}
+
+.page{
+  flex:1;
+  display:none;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+}
+
+.active{
+  display:flex;
+}
+
+.coin{
+  width:200px;
+  height:200px;
+  border-radius:50%;
+  background:gold;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:24px;
+  font-weight:bold;
+  color:#000;
+  box-shadow:0 0 40px gold;
+  cursor:pointer;
+  transition:transform 0.1s;
+}
+
+.coin:active{
+  transform:scale(0.9);
+}
+
+.counter{
+  font-size:28px;
+  margin-bottom:20px;
+}
+
+.navbar{
+  height:70px;
+  background:#222;
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+  border-top:1px solid #333;
+}
+
+.navbtn{
+  color:#aaa;
+  font-size:14px;
+  cursor:pointer;
+}
+
+.navbtn.active{
+  color:gold;
+}
+</style>
+</head>
+
+<body>
+
+<!-- صفحه اصلی -->
+<div id="home" class="page active">
+  <div class="counter">Love Coin: <span id="count">0</span></div>
+  <div class="coin" onclick="addCoin()">Love Coin</div>
+</div>
+
+<!-- صفحه پروفایل -->
+<div id="profile" class="page">
+  <h2>Profile</h2>
+  <p>Coming Soon...</p>
+</div>
+
+<!-- صفحه تنظیمات -->
+<div id="settings" class="page">
+  <h2>Settings</h2>
+  <p>Coming Soon...</p>
+</div>
+
+<!-- نوار پایین -->
+<div class="navbar">
+  <div class="navbtn active" onclick="showPage('home', this)">Home</div>
+  <div class="navbtn" onclick="showPage('profile', this)">Profile</div>
+  <div class="navbtn" onclick="showPage('settings', this)">Settings</div>
+</div>
+
+<script>
+let count = 0;
+
+function addCoin(){
+  count++;
+  document.getElementById("count").innerText = count;
+}
+
+function showPage(pageId, btn){
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".navbtn").forEach(b => b.classList.remove("active"));
+  document.getElementById(pageId).classList.add("active");
+  btn.classList.add("active");
+}
+</script>
+
+</body>
+</html>
