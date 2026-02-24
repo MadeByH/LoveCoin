@@ -102,11 +102,20 @@ body{
 </div>
 
 <script>
-let count = 0;
+let count = localStorage.getItem("loveCoin");
+
+if(count === null){
+  count = 0;
+}else{
+  count = parseInt(count);
+}
+
+document.getElementById("count").innerText = count;
 
 function addCoin(){
   count++;
   document.getElementById("count").innerText = count;
+  localStorage.setItem("loveCoin", count);
 }
 
 function showPage(pageId, btn){
