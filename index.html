@@ -32,7 +32,7 @@ body{
 
 .counter{
   font-size:26px;
-  margin-bottom:10px;
+  margin-bottom:40px; /* فاصله بیشتر از سکه */
   font-weight:bold;
 }
 
@@ -42,7 +42,7 @@ body{
   background:#222;
   border-radius:10px;
   overflow:hidden;
-  margin-bottom:20px;
+  margin-top:20px; /* فاصله از سکه */
 }
 
 .energyFill{
@@ -54,8 +54,9 @@ body{
 
 .energyText{
   font-size:14px;
-  margin-bottom:15px;
+  margin-top:5px;
   color:#aaa;
+  text-align:center;
 }
 
 .coinImg{
@@ -65,6 +66,7 @@ body{
   cursor:pointer;
   transition:transform 0.1s;
   filter: drop-shadow(0 0 25px gold);
+  margin-bottom:10px; /* فاصله تا انرژی */
 }
 
 .plusOne {
@@ -108,17 +110,16 @@ body{
 <div id="home" class="page active">
   <div class="counter">Love Coin: <span id="count">0</span></div>
 
-  <div class="energyText">
-    Energy: <span id="energyText">100</span> / 100
-  </div>
+  <img id="loveCoinImg"
+       src="https://cdn.imgurl.ir/uploads/p719635__.png"
+       class="coinImg">
 
   <div class="energyBox">
     <div id="energyFill" class="energyFill"></div>
   </div>
-
-  <img id="loveCoinImg"
-       src="https://cdn.imgurl.ir/uploads/p719635__.png"
-       class="coinImg">
+  <div class="energyText">
+    Energy: <span id="energyText">100</span> / 100
+  </div>
 </div>
 
 <div id="profile" class="page">
