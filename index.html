@@ -60,11 +60,11 @@ body{
 .page{
   flex:1;
   display:none; /* ابتدا مخفی */
-  justify-content: flex-start; /* تغییر به سمت بالا */
+  justify-content:center;
+  transform: translateY(20px); /* کمی بالاتر*/
   align-items:center;
   flex-direction:column;
   position:relative;
-  padding-top: 8vh; /* فاصله از بالا برای بالاتر بردن سکه */
   padding-bottom:60px;
 }
 
@@ -194,7 +194,7 @@ body{
 </div>
   
 <div class="navbar">
-  <div class="navbtn active">Home</div>
+  <div class="navbtn active" onclick="showPage('home', this)">Home</div>
   <div class="navbtn" onclick="showPage('shop', this)">Shop</div>
   <div class="navbtn" onclick="showPage('profile', this)">Profile</div>
   <div class="navbtn" onclick="showPage('settings', this)">Settings</div>
@@ -295,6 +295,19 @@ setInterval(()=>{
   }
 },1000);
 
+function showPage(pageId, btn){
+  document.querySelectorAll(".page").forEach(p=>{
+    p.classList.remove("active");
+  });
+
+  document.querySelectorAll(".navbtn").forEach(b=>{
+    b.classList.remove("active");
+  });
+
+  document.getElementById(pageId).classList.add("active");
+  btn.classList.add("active");
+}
+  
 </script>
 </body>
 </html>
