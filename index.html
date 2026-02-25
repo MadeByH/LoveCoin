@@ -230,7 +230,22 @@ body{
 
 <div id="shop" class="page">
   <h2>Shop</h2>
-  <p>Coming Soon...</p>
+
+  <div class="setting-row">
+    <span>Tap Power (Lv <span id="tapLv">1</span>)</span>
+    <button onclick="upgradeTap()">Upgrade</button>
+  </div>
+
+  <div class="setting-row">
+    <span>Auto Clicker (Lv <span id="autoLv">0</span>)</span>
+    <button onclick="upgradeAuto()">Upgrade</button>
+  </div>
+
+  <div class="setting-row">
+    <span>Max Energy (Lv <span id="energyLv">0</span>)</span>
+    <button onclick="upgradeEnergy()">Upgrade</button>
+  </div>
+
 </div>
   
 <div id="profile" class="page">
@@ -278,9 +293,15 @@ window.addEventListener('load', () => {
   }, 3000); // ۳ ثانیه زمان لودینگ
 });
 
-let count = parseInt(localStorage.getItem("loveCoin")) || 0;
-let energy = parseInt(localStorage.getItem("energy")) || 100;
-const maxEnergy = 100;
+// ===== Game State =====
+let game = JSON.parse(localStorage.getItem("loveCoinGame")) || {
+  coins: 0,
+  energy: 100,
+  maxEnergy: 100,
+  tapLevel: 1,
+  autoClickerLevel: 0,
+  energyLevel: 0
+};
 
 const countEl = document.getElementById("count");
 const energyText = document.getElementById("energyText");
@@ -302,12 +323,18 @@ if(lastTime){
 localStorage.setItem("lastEnergyTime", Date.now());
 
 setInterval(()=>{
-  if(energy < maxEnergy){
-    energy++;
+  if(game.energy < game.maxEnergy){
+    game.energy++;
     updateUI();
   }
-  localStorage.setItem("lastEnergyTime", Date.now());
-}, 1000);
+},1000);
+
+setInterval(()=>{
+  if(game.autoClickerLevel > 0){
+    game.coins += game.autoClickerLevel;
+    updateUI();
+  }
+},3000);
   
 function formatNumber(num){
   if(num >= 1_000_000_000) return (num/1_000_000_000).toFixed(2)+"B";
@@ -317,18 +344,26 @@ function formatNumber(num){
 }
 
 function updateUI(){
-  countEl.innerText = formatNumber(count);
-  energyText.innerText = energy;
-  energyFill.style.width = (energy / maxEnergy * 100) + "%";
-  localStorage.setItem("loveCoin", count);
-  localStorage.setItem("energy", energy);
+  countEl.innerText = formatNumber(game.coins);
+  energyText.innerText = game.energy;
+  energyFill.style.width = (game.energy / game.maxEnergy * 100) + "%";
+
+  localStorage.setItem("loveCoinGame", JSON.stringify(game));
+  }
+
+function updateShopUI(){
+  document.getElementById("tapLv").innerText = game.tapLevel;
+  document.getElementById("autoLv").innerText = game.autoClickerLevel;
+  document.getElementById("energyLv").innerText = game.energyLevel;
 }
 
+updateShopUI();
+  
 function addCoin(x,y){
-  if(energy <= 0) return;
+  if(game.energy <= 0) return;
 
-  count++;
-  energy--;
+  game.coins += game.tapLevel;
+  game.energy--;
 
   const rect = coinImg.getBoundingClientRect();
   const centerX = rect.left + rect.width/2;
@@ -414,6 +449,40 @@ toggles.forEach(toggle=>{
     localStorage.setItem("setting_"+key, state);
   });
 });
+
+function upgradeTap(){
+  let cost = game.tapLevel * 200;
+
+  if(game.coins >= cost){
+    game.coins -= cost;
+    game.tapLevel++;
+    updateUI();
+    updateShopUI();
+  }
+}
+
+function upgradeAuto(){
+  let cost = (game.autoClickerLevel + 1) * 500;
+
+  if(game.coins >= cost){
+    game.coins -= cost;
+    game.autoClickerLevel++;
+    updateUI();
+    updateShopUI();
+  }
+}
+
+function upgradeEnergy(){
+  let cost = (game.energyLevel + 1) * 400;
+
+  if(game.coins >= cost){
+    game.coins -= cost;
+    game.energyLevel++;
+    game.maxEnergy = 100 + (game.energyLevel * 20);
+    updateUI();
+    updateShopUI();
+  }
+}
   
 </script>
 </body>
