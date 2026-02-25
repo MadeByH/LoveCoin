@@ -498,11 +498,11 @@ setInterval(()=>{
 
 // ===== AUTO CLICK SAFE =====
 setInterval(()=>{
-  if(game.autoClickerLevel > 0){
+  if(game.autoClickerLevel > 0 && Date.now() < autoActiveUntil){
     game.coins += game.autoClickerLevel;
     updateUI();
   }
-},3000);
+},1000);
 
 
 // ===== ADD XP SAFE =====
@@ -644,12 +644,16 @@ function upgradeRecharge(){
   
 function upgradeAuto(){
   let cost = Math.floor(100000 * Math.pow(1.7, game.autoClickerLevel));
+
   if(game.coins >= cost){
     game.coins -= cost;
     game.autoClickerLevel++;
+
+    autoActiveUntil = Date.now() + (5 * 60 * 1000); // 5 دقیقه فعال
+
     updateUI();
   }
-}
+  }
   
 
 // ===== PAGE SYSTEM =====
