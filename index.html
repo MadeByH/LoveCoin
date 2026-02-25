@@ -248,6 +248,12 @@ body{
   <div class="energyText" style="bottom:40px;">
     Level <span id="levelText">1</span> • XP: <span id="xpText">0</span> / <span id="xpNeedText">50</span>
   </div>
+  <div class="energyBox" style="bottom:10px;">
+    <div id="comboFill" class="energyFill" style="background:linear-gradient(90deg,#ff00cc,#ff6600); width:0%;"></div>
+  </div>
+  <div class="energyText" style="bottom:-10px;">
+    Combo: <span id="comboText">x1</span>
+  </div>
 </div>
 
 <div id="shop" class="page">
@@ -406,6 +412,9 @@ let game = savedGame ? {...getDefaultGame(), ...savedGame} : getDefaultGame();
 let lastClickTime = 0;
 let comboMultiplier = 1;
 let autoActiveUntil = 0;
+let comboValue = 0;
+let comboMax = 100;
+let comboTimeout;
   
 // جلوگیری از NaN
 function fixNumbers(){
@@ -572,6 +581,28 @@ function addCoin(x,y){
 }
 
   lastClickTime = nowClick;
+
+  // افزایش مقدار کمبو
+  comboValue += 15;
+
+  if(comboValue > comboMax){
+  comboValue = comboMax;
+}
+
+  // اگر کمبو کامل شد → ضرب 2
+  if(comboValue >= comboMax){
+  comboMultiplier = 2;
+}
+
+  // ریست تایمر کمبو
+  clearTimeout(comboTimeout);
+  comboTimeout = setTimeout(()=>{
+  comboValue = 0;
+  comboMultiplier = 1;
+  updateComboUI();
+},1000); // اگر 1 ثانیه کلیک نکنه ریست میشه
+
+  updateComboUI();
   
   game.coins += game.tapLevel * comboMultiplier;
   if(game.energy < game.tapLevel) return;
@@ -643,6 +674,21 @@ coinImg.addEventListener("click", (e)=>{
   addCoin(e.clientX, e.clientY);
 });
 
+
+function updateComboUI(){
+  const comboFill = document.getElementById("comboFill");
+  const comboText = document.getElementById("comboText");
+
+  comboFill.style.width = (comboValue / comboMax * 100) + "%";
+  comboText.innerText = "x" + comboMultiplier;
+
+  if(comboMultiplier > 1){
+    comboFill.style.boxShadow = "0 0 15px #ff00cc";
+  }else{
+    comboFill.style.boxShadow = "none";
+  }
+}
+  
 
 // ===== SHOP SAFE =====
 function upgradeTap(){
