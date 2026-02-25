@@ -59,14 +59,12 @@ body{
 /* استایل صفحه اصلی */
 .page{
   flex:1;
-  display:none; /* ابتدا مخفی */
-  justify-content:flex-start;
-  transform: translateY(20px); /* کمی بالاتر*/
-  align-items:center;
+  display:none;
   flex-direction:column;
-  position:relative;
-  padding-top:40px;
-  padding-bottom:120px;
+  align-items:center;
+  justify-content:space-between; /* مهم */
+  padding-top:20px;
+  padding-bottom:10px;
 }
 
 .active{
@@ -83,13 +81,10 @@ body{
 }
 
 .coinImg{
-  width:260px; /* کمی بزرگتر */
+  width:260px;
   height:260px;
   object-fit:contain;
   cursor:pointer;
-  will-change: transform;
-  margin-top:auto;
-  margin-bottom:auto;
   transition:transform 0.1s;
   filter: drop-shadow(0 0 40px gold);
   user-select:none;
@@ -516,11 +511,14 @@ function formatNumber(num){
 // ===== UPDATE UI SAFE =====
 function updateUI(){
   fixNumbers();
+  game.maxEnergy = 100 + (game.energyLevel * 20);
 
   countEl.innerText = formatNumber(game.coins);
 
   // اضافه کردن مقدار maxEnergy
-  game.energy = Math.max(0, Math.min(game.energy, game.maxEnergy));  // مطمئن بشیم که energy بیشتر از maxEnergy نمی‌شود
+  if(game.energy > game.maxEnergy){
+  game.energy = game.maxEnergy;
+  }
   energyText.innerText = Math.floor(game.energy) + " / " + game.maxEnergy;  // حتما maxEnergy رو نمایش بده
   energyFill.style.width = (game.energy / game.maxEnergy * 100) + "%";
 
