@@ -371,7 +371,8 @@ const xpFill = document.getElementById("xpFill");
 const xpText = document.getElementById("xpText");
 const xpNeedText = document.getElementById("xpNeedText");
 const levelText = document.getElementById("levelText");
-
+const clickSound = new Audio('mp'); 
+  
 
 // ===== FORMAT NUMBER SAFE =====
 function formatNumber(num){
@@ -485,6 +486,17 @@ function addCoin(x,y){
   setTimeout(()=>plus.remove(),1000);
 }
 
+  // Navigator
+  if (settings.vibration === true && navigator.vibrate) {
+    navigator.vibrate(20); // مقدار 20 میلی‌ثانیه
+  }
+
+  // ClickSound
+  if (settings.sound === true && typeof clickSound !== 'undefined' && clickSound.paused) {
+    // باید مطمئن شوید که clickSound قبلاً تعریف شده است.
+    clickSound.play();
+  }
+  
   updateUI();
 }
 
