@@ -109,16 +109,6 @@ body{
   100% { opacity:0; transform: translateY(-150px); }
 }
 
-.energyBox{
-  width:220px;
-  height:12px;
-  background:#222;
-  border-radius:10px;
-  overflow:hidden;
-  position:absolute;
-  bottom:110px;
-}
-
 .energyFill{
   height:100%;
   width:100%;
@@ -126,15 +116,22 @@ body{
   transition:width 0.2s;
 }
 
+.energyBox{
+  width:220px;
+  height:12px;
+  background:#222;
+  border-radius:10px;
+  overflow:hidden;
+  margin-top:15px;
+}
+
 .energyText{
   font-size:14px;
   color:#aaa;
-  position:absolute;
-  bottom:90px;
+  margin-top:5px;
   text-align:center;
-  width:100%;
 }
-
+  
 .navbar{
   height:70px;
   background:#181818;
@@ -232,30 +229,43 @@ body{
 </div>
 
 <div id="home" class="page">
+
   <div class="counter"><span id="count">0</span></div>
 
   <img id="loveCoinImg"
        src="https://cdn.imgurl.ir/uploads/p719635__.png"
        class="coinImg">
 
+  <!-- ENERGY -->
   <div class="energyBox">
     <div id="energyFill" class="energyFill"></div>
   </div>
   <div class="energyText">
-    Energy: <span id="energyText">100 / 100</span>
+    Energy: <span id="energyText">100</span> / 100
   </div>
-  <div class="energyBox" style="bottom:160px;">
-    <div id="xpFill" class="energyFill" style="background:linear-gradient(90deg,#00f0ff,#00ff88);"></div>
+
+  <!-- XP -->
+  <div class="energyBox">
+    <div id="xpFill" class="energyFill"
+         style="background:linear-gradient(90deg,#00f0ff,#00ff88);">
+    </div>
   </div>
-  <div class="energyText" style="bottom:120px;">
-    Level <span id="levelText">1</span> • XP: <span id="xpText">0</span> / <span id="xpNeedText">50</span>
+  <div class="energyText">
+    Level <span id="levelText">1</span> •
+    XP: <span id="xpText">0</span> /
+    <span id="xpNeedText">50</span>
   </div>
-  <div class="energyBox" style="bottom:80px;">
-    <div id="comboFill" class="energyFill" style="background:linear-gradient(90deg,#ff00cc,#ff6600); width:0%;"></div>
+
+  <!-- COMBO -->
+  <div class="energyBox">
+    <div id="comboFill" class="energyFill"
+         style="background:linear-gradient(90deg,#ff00cc,#ff6600); width:0%;">
+    </div>
   </div>
-  <div class="energyText" style="bottom:-10px;">
+  <div class="energyText">
     Combo: <span id="comboText">x1</span>
   </div>
+
 </div>
 
 <div id="shop" class="page">
