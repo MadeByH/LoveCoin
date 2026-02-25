@@ -365,8 +365,6 @@ function updateUI(){
   xpNeedText.innerText = game.xpNeed;
   levelText.innerText = game.level;
   xpFill.style.width = (game.xp / game.xpNeed * 100) + "%";
-  
-  localStorage.setItem("loveCoinGame", JSON.stringify(game));
   }
 
 function updateShopUI(){
@@ -534,6 +532,10 @@ function upgradeEnergy(){
     updateShopUI();
   }
 }
+
+setInterval(()=>{
+  localStorage.setItem("loveCoinGame", JSON.stringify(game));
+},3000);
   
 </script>
 </body>
