@@ -88,6 +88,8 @@ body{
   object-fit:contain;
   cursor:pointer;
   will-change: transform;
+  margin-top:auto;
+  margin-bottom:auto;
   transition:transform 0.1s;
   filter: drop-shadow(0 0 40px gold);
   user-select:none;
@@ -95,6 +97,14 @@ body{
   -webkit-tap-highlight-color: transparent;
 }
 
+.bottomStats{
+  margin-top:auto;
+  margin-bottom:10px; /* نزدیک ناو */
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+  
 .plusOne {
   position:absolute;
   color:gold;
@@ -236,36 +246,40 @@ body{
        src="https://cdn.imgurl.ir/uploads/p719635__.png"
        class="coinImg">
 
-  <!-- ENERGY -->
-  <div class="energyBox">
-    <div id="energyFill" class="energyFill"></div>
-  </div>
-  <div class="energyText">
-    Energy: <span id="energyText">100</span> / 100
-  </div>
+  <!-- 👇 اینو اضافه کن -->
+  <div class="bottomStats">
 
-  <!-- XP -->
-  <div class="energyBox">
-    <div id="xpFill" class="energyFill"
-         style="background:linear-gradient(90deg,#00f0ff,#00ff88);">
+    <!-- ENERGY -->
+    <div class="energyBox">
+      <div id="energyFill" class="energyFill"></div>
     </div>
-  </div>
-  <div class="energyText">
-    Level <span id="levelText">1</span> •
-    XP: <span id="xpText">0</span> /
-    <span id="xpNeedText">50</span>
-  </div>
-
-  <!-- COMBO -->
-  <div class="energyBox">
-    <div id="comboFill" class="energyFill"
-         style="background:linear-gradient(90deg,#ff00cc,#ff6600); width:0%;">
+    <div class="energyText">
+      Energy: <span id="energyText">100</span> / 100
     </div>
-  </div>
-  <div class="energyText">
-    Combo: <span id="comboText">x1</span>
-  </div>
 
+    <!-- XP -->
+    <div class="energyBox">
+      <div id="xpFill" class="energyFill"
+           style="background:linear-gradient(90deg,#00f0ff,#00ff88);">
+      </div>
+    </div>
+    <div class="energyText">
+      Level <span id="levelText">1</span> •
+      XP: <span id="xpText">0</span> /
+      <span id="xpNeedText">50</span>
+    </div>
+
+    <!-- COMBO -->
+    <div class="energyBox">
+      <div id="comboFill" class="energyFill"
+           style="background:linear-gradient(90deg,#ff00cc,#ff6600); width:0%;">
+      </div>
+    </div>
+    <div class="energyText">
+      Combo: <span id="comboText">x1</span>
+    </div>
+
+  </div>
 </div>
 
 <div id="shop" class="page">
@@ -593,33 +607,33 @@ function addCoin(x,y){
 }
 
   lastClickTime = nowClick;
+  
+  if(game.energy < game.tapLevel) return;
 
-  // افزایش مقدار کمبو
+  game.energy -= game.tapLevel;
+
+  game.coins += game.tapLevel * comboMultiplier;
+  addXP(1);
+
+// ✅ حالا کمبو افزایش پیدا کنه
   comboValue += 15;
 
   if(comboValue > comboMax){
   comboValue = comboMax;
 }
 
-  // اگر کمبو کامل شد → ضرب 2
   if(comboValue >= comboMax){
   comboMultiplier = 2;
 }
 
-  // ریست تایمر کمبو
   clearTimeout(comboTimeout);
   comboTimeout = setTimeout(()=>{
   comboValue = 0;
   comboMultiplier = 1;
   updateComboUI();
-},1000); // اگر 1 ثانیه کلیک نکنه ریست میشه
+},1000);
 
   updateComboUI();
-  
-  game.coins += game.tapLevel * comboMultiplier;
-  if(game.energy < game.tapLevel) return;
-  game.energy -= game.tapLevel;
-  addXP(1);
 
   // انیمیشن ضربه
   const rect = coinImg.getBoundingClientRect();
