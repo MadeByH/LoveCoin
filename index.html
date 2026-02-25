@@ -526,13 +526,13 @@ function addCoin(x,y){
   let nowClick = Date.now();
   let diffClick = nowClick - lastClickTime;
 
-  if(diffClick < 150){
+  if(diffClick < 100){
   comboMultiplier = 2;
 }
-  else if(diffClick < 250){
+  else if(diffClick < 170){
   comboMultiplier = 1.5;
 }
-  else if(diffClick < 400){
+  else if(diffClick < 250){
   comboMultiplier = 1.2;
 }
   else{
