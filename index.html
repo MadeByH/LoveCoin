@@ -489,13 +489,13 @@ toggles.forEach(toggle=>{
 function addXP(amount){
   game.xp += amount;
 
-  if(game.xp >= game.xpNeed){
-    game.xp -= game.xpNeed;
-    game.level++;
-    game.xpNeed = Math.floor(game.xpNeed * 1.5);
+  while(game.xp >= game.xpNeed){
+  game.xp -= game.xpNeed;
+  game.level++;
+  game.xpNeed = Math.floor(game.xpNeed * 1.5);
 
-    // پاداش Level Up
-    game.coins += game.level * 10;
+  game.coins += game.level * 10;
+  }
 
     alert("LEVEL UP! 🔥\nYou reached Level " + game.level);
   }
