@@ -415,6 +415,19 @@ function addCoin(x,y){
   game.energy--;
   addXP(1);
 
+  // انیمیشن ضربه
+  const rect = coinImg.getBoundingClientRect();
+  const centerX = rect.left + rect.width/2;
+  const centerY = rect.top + rect.height/2;
+
+  const offsetX = (x - centerX) / 8;
+  const offsetY = (y - centerY) / 8;
+
+  coinImg.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(0.95)`;
+  setTimeout(()=>{
+  coinImg.style.transform = "translate(0,0) scale(1)";
+},120);
+  
   // Floating text
   const plus = document.createElement("div");
   plus.innerText = "+" + game.tapLevel;
@@ -479,6 +492,21 @@ function upgradeEnergy(){
 }
 
 
+// ===== PAGE SYSTEM =====
+function showPage(pageId, btn){
+  document.querySelectorAll(".page").forEach(p=>{
+    p.classList.remove("active");
+  });
+
+  document.querySelectorAll(".navbtn").forEach(b=>{
+    b.classList.remove("active");
+  });
+
+  document.getElementById(pageId).classList.add("active");
+  btn.classList.add("active");
+}
+
+  
 // ===== SAVE SAFE =====
 setInterval(()=>{
   fixNumbers();
