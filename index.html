@@ -248,10 +248,10 @@ body{
 
   <div class="setting-row">
     <span>
-      Auto Clicker (Lv <span id="autoLv">0</span>)<br>
-      Cost: <span id="autoCost">0</span>
+      Recharging Speed (Lv <span id="rechargeLv">1</span>)<br>
+      Cost: <span id="rechargeCost">0</span>
     </span>
-    <button onclick="upgradeAuto()">Upgrade</button>
+    <button onclick="upgradeRecharge()">Upgrade</button>
   </div>
 
   <div class="setting-row">
@@ -260,6 +260,14 @@ body{
       Cost: <span id="energyCost">0</span>
     </span>
     <button onclick="upgradeEnergy()">Upgrade</button>
+  </div>
+  
+  <div class="setting-row">
+    <span>
+      Auto Clicker (Lv <span id="autoLv">0</span>)<br>
+      Cost: <span id="autoCost">0</span>
+    </span>
+    <button onclick="upgradeAuto()">Upgrade</button>
   </div>
 
 </div>
@@ -391,8 +399,9 @@ function updateUI(){
 
   countEl.innerText = formatNumber(game.coins);
 
+  // اضافه کردن مقدار maxEnergy
   game.energy = Math.max(0, Math.min(game.energy, game.maxEnergy));
-  energyText.innerText = Math.floor(game.energy);
+  energyText.innerText = Math.floor(game.energy) + " / " + game.maxEnergy;
   energyFill.style.width = (game.energy / game.maxEnergy * 100) + "%";
 
   xpText.innerText = Math.floor(game.xp);
@@ -412,7 +421,7 @@ function updateUI(){
   document.getElementById("tapCost").innerText = formatNumber(tapCost);
   document.getElementById("autoCost").innerText = formatNumber(autoCost);
   document.getElementById("energyCost").innerText = formatNumber(energyCost);
-}
+  }
 
 
 // ===== ENERGY REGEN SAFE =====
@@ -533,15 +542,16 @@ function upgradeTap(){
   }
 }
 
-function upgradeAuto(){
-  let cost = Math.floor(500 * Math.pow(1.6, game.autoClickerLevel));
+function upgradeRecharge(){
+  let cost = Math.floor(1000 * Math.pow(1.6, game.rechargeLevel));
   if(game.coins >= cost){
     game.coins -= cost;
-    game.autoClickerLevel++;
+    game.rechargeLevel++;
+    game.rechargeSpeed = 1 + game.rechargeLevel * 0.1;  // افزایش سرعت شارژ انرژی
     updateUI();
   }
 }
-
+  
 function upgradeEnergy(){
   let cost = Math.floor(400 * Math.pow(1.4, game.energyLevel));
   if(game.coins >= cost){
@@ -552,6 +562,15 @@ function upgradeEnergy(){
   }
 }
 
+function upgradeAuto(){
+  let cost = Math.floor(500 * Math.pow(1.6, game.autoClickerLevel));
+  if(game.coins >= cost){
+    game.coins -= cost;
+    game.autoClickerLevel++;
+    updateUI();
+  }
+}
+  
 
 // ===== PAGE SYSTEM =====
 function showPage(pageId, btn){
