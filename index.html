@@ -238,17 +238,26 @@ body{
   <h2>Shop</h2>
 
   <div class="setting-row">
-    <span>Tap Power (Lv <span id="tapLv">1</span>)</span>
+    <span>
+      Tap Power (Lv <span id="tapLv">1</span>)<br>
+      Cost: <span id="tapCost">0</span>
+    </span>
     <button onclick="upgradeTap()">Upgrade</button>
   </div>
 
   <div class="setting-row">
-    <span>Auto Clicker (Lv <span id="autoLv">0</span>)</span>
+    <span>
+      Auto Clicker (Lv <span id="autoLv">0</span>)<br>
+      Cost: <span id="autoCost">0</span>
+    </span>
     <button onclick="upgradeAuto()">Upgrade</button>
   </div>
 
   <div class="setting-row">
-    <span>Max Energy (Lv <span id="energyLv">0</span>)</span>
+    <span>
+      Max Energy (Lv <span id="energyLv">0</span>)<br>
+      Cost: <span id="energyCost">0</span>
+    </span>
     <button onclick="upgradeEnergy()">Upgrade</button>
   </div>
 
@@ -315,6 +324,29 @@ function fixNumbers(){
 fixNumbers();
 
 
+// ===== SETTINGS SYSTEM =====
+let settings = JSON.parse(localStorage.getItem("loveCoinSettings")) || {
+  vibration: true,
+  sound: true,
+  floatingText: true
+};
+
+document.querySelectorAll(".toggle").forEach(toggle=>{
+  const key = toggle.dataset.setting;
+
+  if(settings[key]){
+    toggle.classList.add("active");
+  }
+
+  toggle.addEventListener("click", ()=>{
+    settings[key] = !settings[key];
+    toggle.classList.toggle("active");
+
+    localStorage.setItem("loveCoinSettings", JSON.stringify(settings));
+  });
+});
+
+  
 // ===== LOADING FIX =====
 window.addEventListener('load', () => {
   const loader = document.getElementById('loading-screen');
@@ -365,6 +397,19 @@ function updateUI(){
   xpNeedText.innerText = game.xpNeed;
   levelText.innerText = game.level;
   xpFill.style.width = (game.xp / game.xpNeed * 100) + "%";
+
+  // ===== SHOP UI =====
+  document.getElementById("tapLv").innerText = game.tapLevel;
+  document.getElementById("autoLv").innerText = game.autoClickerLevel;
+  document.getElementById("energyLv").innerText = game.energyLevel;
+
+  let tapCost = Math.floor(200 * Math.pow(1.5, game.tapLevel - 1));
+  let autoCost = Math.floor(500 * Math.pow(1.6, game.autoClickerLevel));
+  let energyCost = Math.floor(400 * Math.pow(1.4, game.energyLevel));
+
+  document.getElementById("tapCost").innerText = formatNumber(tapCost);
+  document.getElementById("autoCost").innerText = formatNumber(autoCost);
+  document.getElementById("energyCost").innerText = formatNumber(energyCost);
 }
 
 
@@ -412,7 +457,8 @@ function addCoin(x,y){
   if(game.energy <= 0) return;
 
   game.coins += game.tapLevel;
-  game.energy--;
+  if(game.energy < game.tapLevel) return;
+  game.energy -= game.tapLevel;
   addXP(1);
 
   // انیمیشن ضربه
@@ -429,6 +475,7 @@ function addCoin(x,y){
 },120);
   
   // Floating text
+  if(settings.floatingText){
   const plus = document.createElement("div");
   plus.innerText = "+" + game.tapLevel;
   plus.className = "plusOne";
@@ -436,6 +483,7 @@ function addCoin(x,y){
   plus.style.top = (y - 20) + "px";
   document.getElementById("home").appendChild(plus);
   setTimeout(()=>plus.remove(),1000);
+}
 
   updateUI();
 }
