@@ -83,6 +83,14 @@ body{
   transform: translateY(-3px); /* کمی بالاتر */
 }
 
+.coinWrapper{
+  flex:1;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  width:100%;
+}
+  
 .coinImg{
   width:260px;
   height:260px;
@@ -241,9 +249,11 @@ body{
 
   <div class="counter"><span id="count">0</span></div>
 
-  <img id="loveCoinImg"
-       src="https://cdn.imgurl.ir/uploads/p719635__.png"
-       class="coinImg">
+  <div class="coinWrapper">
+    <img id="loveCoinImg"
+         src="https://cdn.imgurl.ir/uploads/p719635__.png"
+         class="coinImg">
+    </div>
 
   <!-- 👇 اینو اضافه کن -->
   <div class="bottomStats">
