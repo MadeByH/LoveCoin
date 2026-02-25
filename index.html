@@ -320,11 +320,13 @@ window.addEventListener('load', () => {
   const loader = document.getElementById('loading-screen');
   const home = document.getElementById('home');
 
-  loader.style.opacity = '0';
-  setTimeout(() => {
-    loader.style.display = 'none';
-    home.classList.add('active');
-  }, 500);
+  setTimeout(()=>{
+    loader.style.opacity = '0';
+    setTimeout(() => {
+      loader.style.display = 'none';
+      home.classList.add('active');
+    }, 500);
+  },3500); // ← زمان دلخواه
 });
 
 
@@ -425,8 +427,25 @@ function addCoin(x,y){
   updateUI();
 }
 
-coinImg.addEventListener("click",(e)=>{
-  addCoin(e.clientX,e.clientY);
+let touchUsed = false;
+
+// لمس چند انگشتی
+coinImg.addEventListener("touchstart", (e)=>{
+  e.preventDefault();
+  touchUsed = true;
+
+  for(let i=0;i<e.changedTouches.length;i++){
+    const t = e.changedTouches[i];
+    addCoin(t.clientX, t.clientY);
+  }
+
+  setTimeout(()=> touchUsed = false, 50);
+});
+
+// کلیک معمولی (برای دسکتاپ)
+coinImg.addEventListener("click", (e)=>{
+  if(touchUsed) return;
+  addCoin(e.clientX, e.clientY);
 });
 
 
