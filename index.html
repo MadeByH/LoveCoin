@@ -286,54 +286,92 @@ body{
 </div>
 
 <script>
-// مدیریت لودینگ
+// ===== SAFE LOAD GAME =====
+function getDefaultGame(){
+  return {
+    coins: 0,
+    energy: 100,
+    maxEnergy: 100,
+    tapLevel: 1,
+    autoClickerLevel: 0,
+    energyLevel: 0,
+    xp: 0,
+    level: 1,
+    xpNeed: 50
+  };
+}
+
+let savedGame = JSON.parse(localStorage.getItem("loveCoinGame"));
+let game = savedGame ? {...getDefaultGame(), ...savedGame} : getDefaultGame();
+
+// جلوگیری از NaN
+function fixNumbers(){
+  for(let key in game){
+    if(typeof game[key] !== "number" || isNaN(game[key])){
+      game[key] = getDefaultGame()[key];
+    }
+  }
+}
+fixNumbers();
+
+
+// ===== LOADING FIX =====
 window.addEventListener('load', () => {
+  const loader = document.getElementById('loading-screen');
+  const home = document.getElementById('home');
+
+  loader.style.opacity = '0';
   setTimeout(() => {
-    const loader = document.getElementById('loading-screen');
-    const home = document.getElementById('home');
-    loader.style.opacity = '0';
-    setTimeout(() => {
-      loader.style.display = 'none';
-      home.classList.add('active');
-    }, 500);
-  }, 3000); // ۳ ثانیه زمان لودینگ
+    loader.style.display = 'none';
+    home.classList.add('active');
+  }, 500);
 });
 
-// ===== Game State =====
-let game = JSON.parse(localStorage.getItem("loveCoinGame")) || {
-  coins: 0,
-  energy: 100,
-  maxEnergy: 100,
-  tapLevel: 1,
-  autoClickerLevel: 0,
-  energyLevel: 0,
-  xp: 0,
-  level: 1,
-  xpNeed: 50
-};
 
+// ===== ELEMENTS =====
 const countEl = document.getElementById("count");
 const energyText = document.getElementById("energyText");
 const energyFill = document.getElementById("energyFill");
 const coinImg = document.getElementById("loveCoinImg");
-const clickSound = new Audio("https://uploadkon.ir/uploads/594524_26Video-۲۰۲۶۰۲۲۴۲۲۴۹۳۴۷۸۴-by-VideoShow.mp3");
 const xpFill = document.getElementById("xpFill");
 const xpText = document.getElementById("xpText");
 const xpNeedText = document.getElementById("xpNeedText");
 const levelText = document.getElementById("levelText");
-  
-updateUI();
 
-// ===== Smart Energy System (فقط یک بار) =====
-let lastTime = localStorage.getItem("lastEnergyTime");
 
-if(lastTime){
-  let now = Date.now();
-  let diff = Math.floor((now - lastTime) / 1000);
-
-  game.energy = Math.min(game.maxEnergy, game.energy + diff);
+// ===== FORMAT NUMBER SAFE =====
+function formatNumber(num){
+  if(isNaN(num)) return 0;
+  if(num >= 1e9) return (num/1e9).toFixed(2)+"B";
+  if(num >= 1e6) return (num/1e6).toFixed(2)+"M";
+  if(num >= 1e3) return (num/1e3).toFixed(2)+"K";
+  return Math.floor(num);
 }
 
+
+// ===== UPDATE UI SAFE =====
+function updateUI(){
+  fixNumbers();
+
+  countEl.innerText = formatNumber(game.coins);
+
+  game.energy = Math.max(0, Math.min(game.energy, game.maxEnergy));
+  energyText.innerText = Math.floor(game.energy);
+  energyFill.style.width = (game.energy / game.maxEnergy * 100) + "%";
+
+  xpText.innerText = Math.floor(game.xp);
+  xpNeedText.innerText = game.xpNeed;
+  levelText.innerText = game.level;
+  xpFill.style.width = (game.xp / game.xpNeed * 100) + "%";
+}
+
+
+// ===== ENERGY REGEN SAFE =====
+let lastTime = parseInt(localStorage.getItem("lastEnergyTime")) || Date.now();
+let now = Date.now();
+let diff = Math.floor((now - lastTime) / 1000);
+
+game.energy = Math.min(game.maxEnergy, game.energy + diff);
 localStorage.setItem("lastEnergyTime", Date.now());
 
 setInterval(()=>{
@@ -343,200 +381,93 @@ setInterval(()=>{
   }
 },1000);
 
+
+// ===== AUTO CLICK SAFE =====
 setInterval(()=>{
   if(game.autoClickerLevel > 0){
     game.coins += game.autoClickerLevel;
     updateUI();
   }
 },3000);
-  
-function formatNumber(num){
-  if(num >= 1_000_000_000) return (num/1_000_000_000).toFixed(2)+"B";
-  if(num >= 1_000_000) return (num/1_000_000).toFixed(2)+"M";
-  if(num >= 1_000) return (num/1_000).toFixed(2)+"K";
-  return num;
-}
 
-function updateUI(){
-  countEl.innerText = formatNumber(game.coins);
-  energyText.innerText = game.energy;
-  energyFill.style.width = (game.energy / game.maxEnergy * 100) + "%";
-  xpText.innerText = game.xp;
-  xpNeedText.innerText = game.xpNeed;
-  levelText.innerText = game.level;
-  xpFill.style.width = (game.xp / game.xpNeed * 100) + "%";
+
+// ===== ADD XP SAFE =====
+function addXP(amount){
+  game.xp += amount;
+
+  while(game.xp >= game.xpNeed){
+    game.xp -= game.xpNeed;
+    game.level++;
+    game.xpNeed = Math.floor(game.xpNeed * 1.5);
+    game.coins += game.level * 10;
+    alert("LEVEL UP 🔥 Level " + game.level);
   }
-
-function updateShopUI(){
-  document.getElementById("tapLv").innerText = game.tapLevel;
-  document.getElementById("autoLv").innerText = game.autoClickerLevel;
-  document.getElementById("energyLv").innerText = game.energyLevel;
 }
 
-updateShopUI();
-  
+
+// ===== CLICK SYSTEM SAFE =====
 function addCoin(x,y){
   if(game.energy <= 0) return;
 
   game.coins += game.tapLevel;
   game.energy--;
-
-  // XP گرفتن
   addXP(1);
 
-  // Random Drop (5 درصد احتمال)
-  if(Math.random() < 0.05){
-  let bonus = game.level * 5;
-  game.coins += bonus;
-
-  const drop = document.createElement("div");
-  drop.innerText = "+" + bonus;
-  drop.classList.add("plusOne");
-  drop.style.color = "#00ff88";
-  drop.style.left = (x - 10) + "px";
-  drop.style.top = (y - 20) + "px";
-  document.getElementById("home").appendChild(drop);
-  setTimeout(()=>drop.remove(),1000);
-}
-  
-  const rect = coinImg.getBoundingClientRect();
-  const centerX = rect.left + rect.width/2;
-  const centerY = rect.top + rect.height/2;
-
-  const offsetX = (x - centerX) / 8;
-  const offsetY = (y - centerY) / 8;
-
-  coinImg.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(0.95)`;
-  setTimeout(()=>{
-    coinImg.style.transform = "translate(0,0) scale(1)";
-  },120);
-
-  if(localStorage.getItem("setting_floatingText") !== "false"){
+  // Floating text
   const plus = document.createElement("div");
   plus.innerText = "+" + game.tapLevel;
-  plus.classList.add("plusOne");
+  plus.className = "plusOne";
   plus.style.left = (x - 10) + "px";
   plus.style.top = (y - 20) + "px";
   document.getElementById("home").appendChild(plus);
   setTimeout(()=>plus.remove(),1000);
-  }
 
-  if(localStorage.getItem("setting_vibration") === "true"){
-  if(navigator.vibrate){
-    navigator.vibrate(20);
-  }
-}
-  if(localStorage.getItem("setting_sound") === "true"){
-  clickSound.currentTime = 0;
-  clickSound.play();
-}
   updateUI();
 }
 
-let touchUsed = false;
-
-coinImg.addEventListener("touchstart", (e)=>{
-  e.preventDefault();
-  touchUsed = true;
-
-  for(let i=0;i<e.changedTouches.length;i++){
-    const t = e.changedTouches[i];
-    addCoin(t.clientX, t.clientY);
-  }
-
-  setTimeout(()=> touchUsed = false, 50);
+coinImg.addEventListener("click",(e)=>{
+  addCoin(e.clientX,e.clientY);
 });
 
-coinImg.addEventListener("click", (e)=>{
-  if(touchUsed) return;
-  addCoin(e.clientX, e.clientY);
-});
 
-function showPage(pageId, btn){
-  document.querySelectorAll(".page").forEach(p=>{
-    p.classList.remove("active");
-  });
-
-  document.querySelectorAll(".navbtn").forEach(b=>{
-    b.classList.remove("active");
-  });
-
-  document.getElementById(pageId).classList.add("active");
-  btn.classList.add("active");
-}
-
-// ===== Settings System =====
-const toggles = document.querySelectorAll(".toggle");
-
-toggles.forEach(toggle=>{
-  const key = toggle.dataset.setting;
-
-  // بارگذاری وضعیت ذخیره‌شده
-  const saved = localStorage.getItem("setting_"+key);
-  if(saved === "true"){
-    toggle.classList.add("active");
-  }
-
-  toggle.addEventListener("click", ()=>{
-    toggle.classList.toggle("active");
-    const state = toggle.classList.contains("active");
-    localStorage.setItem("setting_"+key, state);
-  });
-});
-
-function addXP(amount){
-  game.xp += amount;
-
-  while(game.xp >= game.xpNeed){
-  game.xp -= game.xpNeed;
-  game.level++;
-  game.xpNeed = Math.floor(game.xpNeed * 1.5);
-
-  game.coins += game.level * 10;
-  }
-
-    alert("LEVEL UP! 🔥\nYou reached Level " + game.level);
-  }
-}
-  
+// ===== SHOP SAFE =====
 function upgradeTap(){
   let cost = Math.floor(200 * Math.pow(1.5, game.tapLevel - 1));
-
   if(game.coins >= cost){
     game.coins -= cost;
     game.tapLevel++;
     updateUI();
-    updateShopUI();
   }
 }
 
 function upgradeAuto(){
   let cost = Math.floor(500 * Math.pow(1.6, game.autoClickerLevel));
-
   if(game.coins >= cost){
     game.coins -= cost;
     game.autoClickerLevel++;
     updateUI();
-    updateShopUI();
   }
 }
 
 function upgradeEnergy(){
   let cost = Math.floor(400 * Math.pow(1.4, game.energyLevel));
-
   if(game.coins >= cost){
     game.coins -= cost;
     game.energyLevel++;
     game.maxEnergy = 100 + (game.energyLevel * 20);
     updateUI();
-    updateShopUI();
   }
 }
 
+
+// ===== SAVE SAFE =====
 setInterval(()=>{
+  fixNumbers();
   localStorage.setItem("loveCoinGame", JSON.stringify(game));
+  localStorage.setItem("lastEnergyTime", Date.now());
 },3000);
-  
+
+updateUI();
 </script>
 </body>
 </html>
