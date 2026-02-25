@@ -293,7 +293,13 @@ body{
   
 <div id="profile" class="page">
   <h2>Profile</h2>
-  <p>Coming Soon...</p>
+  <div class="setting-row">
+    <span>
+      <b>Daily Reward</b><br>
+      Claim your daily coins!
+    </span>
+    <button onclick="claimDaily()">Claim</button>
+  </div>
 </div>
 
 <div id="settings" class="page">
@@ -365,7 +371,10 @@ function getDefaultGame(){
 
 let savedGame = JSON.parse(localStorage.getItem("loveCoinGame"));
 let game = savedGame ? {...getDefaultGame(), ...savedGame} : getDefaultGame();
-
+let lastClickTime = 0;
+let comboMultiplier = 1;
+let autoActiveUntil = 0;
+  
 // جلوگیری از NaN
 function fixNumbers(){
   for(let key in game){
@@ -438,7 +447,6 @@ function formatNumber(num){
 
 
 // ===== UPDATE UI SAFE =====
-// ===== UPDATE UI SAFE =====
 function updateUI(){
   fixNumbers();
 
@@ -460,10 +468,10 @@ function updateUI(){
   document.getElementById("energyLv").innerText = game.energyLevel;
   document.getElementById("rechargeLv").innerText = game.rechargeLevel;
 
-  let tapCost = Math.floor(200 * Math.pow(1.5, game.tapLevel - 1));
-  let autoCost = Math.floor(500 * Math.pow(1.6, game.autoClickerLevel));
-  let energyCost = Math.floor(400 * Math.pow(1.4, game.energyLevel));
-  let rechargeCost = Math.floor(1000 * Math.pow(1.7, game.rechargeLevel));
+  let tapCost = Math.floor(250 * Math.pow(1.6, game.tapLevel - 1));
+  let autoCost = Math.floor(100000 * Math.pow(1.7, game.autoClickerLevel));
+  let energyCost = Math.floor(500 * Math.pow(1.5, game.energyLevel));
+  let rechargeCost = Math.floor(10000 * Math.pow(1.7, game.rechargeLevel));
 
   document.getElementById("tapCost").innerText = formatNumber(tapCost);
   document.getElementById("autoCost").innerText = formatNumber(autoCost);
@@ -515,7 +523,25 @@ function addXP(amount){
 function addCoin(x,y){
   if(game.energy <= 0) return;
 
-  game.coins += game.tapLevel;
+  let nowClick = Date.now();
+  let diffClick = nowClick - lastClickTime;
+
+  if(diffClick < 150){
+  comboMultiplier = 2;
+}
+  else if(diffClick < 250){
+  comboMultiplier = 1.5;
+}
+  else if(diffClick < 400){
+  comboMultiplier = 1.2;
+}
+  else{
+  comboMultiplier = 1;
+}
+
+  lastClickTime = nowClick;
+  
+  game.coins += game.tapLevel * comboMultiplier;
   if(game.energy < game.tapLevel) return;
   game.energy -= game.tapLevel;
   addXP(1);
@@ -542,6 +568,12 @@ function addCoin(x,y){
   plus.style.top = (y - 20) + "px";
   document.getElementById("home").appendChild(plus);
   setTimeout(()=>plus.remove(),1000);
+
+  plus.innerText = "+" + Math.floor(game.tapLevel * comboMultiplier);
+
+  if(comboMultiplier > 1){
+  plus.style.color = "#00f0ff";
+}
 }
 
   // Navigator
@@ -647,6 +679,22 @@ function showLevelUp(){
     popup.style.opacity = "0";
     popup.style.transform = "translate(-50%,-50%) scale(0.8)";
   },2000);
+}
+
+
+function claimDaily(){
+  let lastClaim = localStorage.getItem("dailyRewardTime");
+  let now = Date.now();
+
+  if(!lastClaim || now - lastClaim > 86400000){
+    let reward = 500 + (game.level * 50);
+    game.coins += reward;
+    localStorage.setItem("dailyRewardTime", now);
+    alert("You received " + reward + " coins!");
+    updateUI();
+  }else{
+    alert("Come back tomorrow!");
+  }
 }
   
   
