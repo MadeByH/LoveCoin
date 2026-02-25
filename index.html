@@ -492,8 +492,8 @@ function addCoin(x,y){
   }
 
   // ClickSound
-  if (settings.sound === true && typeof clickSound !== 'undefined' && clickSound.paused) {
-    // باید مطمئن شوید که clickSound قبلاً تعریف شده است.
+  if (settings.sound === true && typeof clickSound !== 'undefined') {
+    clickSound.currentTime = 0; // فایل صوتی را به ابتدای آن برمی‌گرداند
     clickSound.play();
   }
   
