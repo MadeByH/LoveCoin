@@ -170,6 +170,21 @@ body{
   font-size:15px;
 }
 
+.setting-row button{
+  background: linear-gradient(90deg, gold, orange);
+  border:none;
+  padding:8px 14px;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.setting-row button:hover{
+  transform:scale(1.05);
+  box-shadow:0 0 10px gold;
+}
+  
 .toggle{
   width:55px;
   height:28px;
@@ -240,7 +255,8 @@ body{
 
   <div class="setting-row">
     <span>
-      Tap Power (Lv <span id="tapLv">1</span>)<br>
+      <b>Tap Power</b><br>
+      Lv <span id="tapLv">1</span><br>
       Cost: <span id="tapCost">0</span>
     </span>
     <button onclick="upgradeTap()">Upgrade</button>
@@ -248,7 +264,8 @@ body{
 
   <div class="setting-row">
     <span>
-      Max Energy (Lv <span id="energyLv">0</span>)<br>
+      <b>Max Energy</b><br>
+      Lv <span id="energyLv">0</span><br>
       Cost: <span id="energyCost">0</span>
     </span>
     <button onclick="upgradeEnergy()">Upgrade</button>
@@ -256,7 +273,8 @@ body{
 
   <div class="setting-row">
     <span>
-      Recharging Speed (Lv <span id="rechargeLv">1</span>)<br>
+      <b>Recharging Speed</b><br>
+      Lv <span id="rechargeLv">1</span><br>
       Cost: <span id="rechargeCost">0</span>
     </span>
     <button onclick="upgradeRecharge()">Upgrade</button>
@@ -264,7 +282,8 @@ body{
   
   <div class="setting-row">
     <span>
-      Auto Clicker (Lv <span id="autoLv">0</span>)<br>
+      <b>Auto Clicker</b><br>
+      Lv <span id="autoLv">0</span><br>
       Cost: <span id="autoCost">0</span>
     </span>
     <button onclick="upgradeAuto()">Upgrade</button>
@@ -294,6 +313,29 @@ body{
     <span>Floating +1</span>
     <div class="toggle" data-setting="floatingText"></div>
   </div>
+</div>
+
+<div id="levelUpPopup" style="
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%) scale(0.8);
+background:linear-gradient(135deg,#111,#222);
+padding:30px 50px;
+border-radius:20px;
+border:2px solid gold;
+box-shadow:0 0 30px gold;
+color:gold;
+font-size:28px;
+font-weight:bold;
+opacity:0;
+pointer-events:none;
+transition:0.3s;
+z-index:9999;
+text-align:center;
+">
+  LEVEL UP<br>
+  <span id="levelUpNumber"></span>
 </div>
   
 <div class="navbar">
@@ -464,7 +506,7 @@ function addXP(amount){
     game.level++;
     game.xpNeed = Math.floor(game.xpNeed * 1.5);
     game.coins += game.level * 10;
-    alert("LEVEL UP 🔥 Level " + game.level);
+    showLevelUp();
   }
 }
 
@@ -592,6 +634,21 @@ function showPage(pageId, btn){
   btn.classList.add("active");
 }
 
+function showLevelUp(){
+  const popup = document.getElementById("levelUpPopup");
+  const number = document.getElementById("levelUpNumber");
+
+  number.innerText = "Level " + game.level;
+
+  popup.style.opacity = "1";
+  popup.style.transform = "translate(-50%,-50%) scale(1)";
+
+  setTimeout(()=>{
+    popup.style.opacity = "0";
+    popup.style.transform = "translate(-50%,-50%) scale(0.8)";
+  },2000);
+}
+  
   
 // ===== SAVE SAFE =====
 setInterval(()=>{
