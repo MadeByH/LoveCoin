@@ -460,7 +460,6 @@ function fixNumbers(){
   }
 }
 fixNumbers();
-game.maxEnergy = 100 + (game.energyLevel * 20);
 
 
 // ===== SETTINGS SYSTEM =====
@@ -531,6 +530,7 @@ function updateUI(){
   countEl.innerText = formatNumber(game.coins);
 
   // اضافه کردن مقدار maxEnergy
+  if(game.energy < 0) game.energy = 0;
   if(game.energy > game.maxEnergy){
   game.energy = game.maxEnergy;
   }
@@ -565,7 +565,10 @@ let lastTime = parseInt(localStorage.getItem("lastEnergyTime")) || Date.now();
 let now = Date.now();
 let diff = Math.floor((now - lastTime) / 1000);
 
+game.maxEnergy = 100 + (game.energyLevel * 20);
+
 game.energy = Math.min(game.maxEnergy, game.energy + diff);
+
 localStorage.setItem("lastEnergyTime", Date.now());
 
 setInterval(()=>{
@@ -736,6 +739,8 @@ function upgradeTap(){
     game.coins -= cost;
     game.tapLevel++;
     updateUI();
+  }else{
+    showCustomAlert("❌ Not enough coins!");
   }
 }
   
@@ -746,6 +751,8 @@ function upgradeEnergy(){
     game.energyLevel++;
     game.maxEnergy = 100 + (game.energyLevel * 20);
     updateUI();
+  }else{
+    showCustomAlert("❌ Not enough coins!");
   }
 }
 
@@ -756,6 +763,8 @@ function upgradeRecharge(){
     game.rechargeLevel++;
     game.rechargeSpeed = 1 + game.rechargeLevel * 0.1;  // افزایش سرعت شارژ انرژی
     updateUI();
+  }else{
+    showCustomAlert("❌ Not enough coins!");
   }
 }
   
@@ -769,6 +778,8 @@ function upgradeAuto(){
     autoActiveUntil = Date.now() + (5 * 60 * 1000); // 5 دقیقه فعال
 
     updateUI();
+  }else{
+    showCustomAlert("❌ Not enough coins!");
   }
   }
   
