@@ -226,6 +226,12 @@ body{
   <div class="energyText">
     Energy: <span id="energyText">100</span> / 100
   </div>
+  <div class="energyBox" style="bottom:60px;">
+    <div id="xpFill" class="energyFill" style="background:linear-gradient(90deg,#00f0ff,#00ff88);"></div>
+  </div>
+  <div class="energyText" style="bottom:40px;">
+    Level <span id="levelText">1</span> • XP: <span id="xpText">0</span> / <span id="xpNeedText">50</span>
+  </div>
 </div>
 
 <div id="shop" class="page">
@@ -300,7 +306,10 @@ let game = JSON.parse(localStorage.getItem("loveCoinGame")) || {
   maxEnergy: 100,
   tapLevel: 1,
   autoClickerLevel: 0,
-  energyLevel: 0
+  energyLevel: 0,
+  xp: 0,
+  level: 1,
+  xpNeed: 50
 };
 
 const countEl = document.getElementById("count");
@@ -308,6 +317,10 @@ const energyText = document.getElementById("energyText");
 const energyFill = document.getElementById("energyFill");
 const coinImg = document.getElementById("loveCoinImg");
 const clickSound = new Audio("https://uploadkon.ir/uploads/594524_26Video-۲۰۲۶۰۲۲۴۲۲۴۹۳۴۷۸۴-by-VideoShow.mp3");
+const xpFill = document.getElementById("xpFill");
+const xpText = document.getElementById("xpText");
+const xpNeedText = document.getElementById("xpNeedText");
+const levelText = document.getElementById("levelText");
   
 updateUI();
 
@@ -348,7 +361,11 @@ function updateUI(){
   countEl.innerText = formatNumber(game.coins);
   energyText.innerText = game.energy;
   energyFill.style.width = (game.energy / game.maxEnergy * 100) + "%";
-
+  xpText.innerText = game.xp;
+  xpNeedText.innerText = game.xpNeed;
+  levelText.innerText = game.level;
+  xpFill.style.width = (game.xp / game.xpNeed * 100) + "%";
+  
   localStorage.setItem("loveCoinGame", JSON.stringify(game));
   }
 
@@ -366,6 +383,24 @@ function addCoin(x,y){
   game.coins += game.tapLevel;
   game.energy--;
 
+  // XP گرفتن
+  addXP(1);
+
+  // Random Drop (5 درصد احتمال)
+  if(Math.random() < 0.05){
+  let bonus = game.level * 5;
+  game.coins += bonus;
+
+  const drop = document.createElement("div");
+  drop.innerText = "+" + bonus;
+  drop.classList.add("plusOne");
+  drop.style.color = "#00ff88";
+  drop.style.left = (x - 10) + "px";
+  drop.style.top = (y - 20) + "px";
+  document.getElementById("home").appendChild(drop);
+  setTimeout(()=>drop.remove(),1000);
+}
+  
   const rect = coinImg.getBoundingClientRect();
   const centerX = rect.left + rect.width/2;
   const centerY = rect.top + rect.height/2;
@@ -451,6 +486,21 @@ toggles.forEach(toggle=>{
   });
 });
 
+function addXP(amount){
+  game.xp += amount;
+
+  if(game.xp >= game.xpNeed){
+    game.xp -= game.xpNeed;
+    game.level++;
+    game.xpNeed = Math.floor(game.xpNeed * 1.5);
+
+    // پاداش Level Up
+    game.coins += game.level * 10;
+
+    alert("LEVEL UP! 🔥\nYou reached Level " + game.level);
+  }
+}
+  
 function upgradeTap(){
   let cost = Math.floor(200 * Math.pow(1.5, game.tapLevel - 1));
 
