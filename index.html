@@ -248,18 +248,18 @@ body{
 
   <div class="setting-row">
     <span>
-      Recharging Speed (Lv <span id="rechargeLv">1</span>)<br>
-      Cost: <span id="rechargeCost">0</span>
-    </span>
-    <button onclick="upgradeRecharge()">Upgrade</button>
-  </div>
-
-  <div class="setting-row">
-    <span>
       Max Energy (Lv <span id="energyLv">0</span>)<br>
       Cost: <span id="energyCost">0</span>
     </span>
     <button onclick="upgradeEnergy()">Upgrade</button>
+  </div>
+
+  <div class="setting-row">
+    <span>
+      Recharging Speed (Lv <span id="rechargeLv">1</span>)<br>
+      Cost: <span id="rechargeCost">0</span>
+    </span>
+    <button onclick="upgradeRecharge()">Upgrade</button>
   </div>
   
   <div class="setting-row">
@@ -541,16 +541,6 @@ function upgradeTap(){
     updateUI();
   }
 }
-
-function upgradeRecharge(){
-  let cost = Math.floor(1000 * Math.pow(1.6, game.rechargeLevel));
-  if(game.coins >= cost){
-    game.coins -= cost;
-    game.rechargeLevel++;
-    game.rechargeSpeed = 1 + game.rechargeLevel * 0.1;  // افزایش سرعت شارژ انرژی
-    updateUI();
-  }
-}
   
 function upgradeEnergy(){
   let cost = Math.floor(400 * Math.pow(1.4, game.energyLevel));
@@ -562,6 +552,16 @@ function upgradeEnergy(){
   }
 }
 
+function upgradeRecharge(){
+  let cost = Math.floor(1000 * Math.pow(1.6, game.rechargeLevel));
+  if(game.coins >= cost){
+    game.coins -= cost;
+    game.rechargeLevel++;
+    game.rechargeSpeed = 1 + game.rechargeLevel * 0.1;  // افزایش سرعت شارژ انرژی
+    updateUI();
+  }
+}
+  
 function upgradeAuto(){
   let cost = Math.floor(500 * Math.pow(1.6, game.autoClickerLevel));
   if(game.coins >= cost){
