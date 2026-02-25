@@ -394,14 +394,15 @@ function formatNumber(num){
 
 
 // ===== UPDATE UI SAFE =====
+// ===== UPDATE UI SAFE =====
 function updateUI(){
   fixNumbers();
 
   countEl.innerText = formatNumber(game.coins);
 
   // اضافه کردن مقدار maxEnergy
-  game.energy = Math.max(0, Math.min(game.energy, game.maxEnergy));
-  energyText.innerText = Math.floor(game.energy) + " / " + game.maxEnergy;
+  game.energy = Math.max(0, Math.min(game.energy, game.maxEnergy));  // مطمئن بشیم که energy بیشتر از maxEnergy نمی‌شود
+  energyText.innerText = Math.floor(game.energy) + " / " + game.maxEnergy;  // حتما maxEnergy رو نمایش بده
   energyFill.style.width = (game.energy / game.maxEnergy * 100) + "%";
 
   xpText.innerText = Math.floor(game.xp);
@@ -421,7 +422,7 @@ function updateUI(){
   document.getElementById("tapCost").innerText = formatNumber(tapCost);
   document.getElementById("autoCost").innerText = formatNumber(autoCost);
   document.getElementById("energyCost").innerText = formatNumber(energyCost);
-  }
+}
 
 
 // ===== ENERGY REGEN SAFE =====
