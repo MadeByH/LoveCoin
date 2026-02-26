@@ -780,99 +780,106 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let baleUserId = null;
 
-async function initUser(){
+// =================================================================
+// تنظیمات اشکال‌زدایی:
+// برای استفاده از پیام‌های پاپ‌آپ (توقف اجرا): true
+// برای استفاده از کنسول مرورگر (اجرای پیوسته): false
+const DEBUG_MODE = true; 
+// =================================================================
 
-  alert("Init started");
-  await new Promise(r => setTimeout(r, 500));
-
-  showLoader();
-
-  try {
-
-    alert("Checking Bale...");
-
-    if (window.Bale && Bale.WebApp) {
-      Bale.WebApp.ready();
-      const user = Bale.WebApp.initDataUnsafe?.user;
-      if(user){
-        baleUserId = user.id.toString();
-        alert("Bale ID: " + baleUserId);
-      }
-    }
-
-    if(!baleUserId){
-      alert("No Bale ID, using test ID");
-      baleUserId = localStorage.getItem("test_user_id");
-      if(!baleUserId){
-        baleUserId = "test_" + Math.floor(Math.random()*9999999);
-        localStorage.setItem("test_user_id", baleUserId);
-      }
-    }
-
-    alert("Fetching user from DB...");
-
-    const { data, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("bale_id", baleUserId);
-
-    if(error){
-      alert("DB Select Error: " + error.message);
-      hideLoader();
-      return;
-    }
-
-    alert("DB Response OK");
-
-    if(data && data.length > 0){
-      alert("User exists");
-      loadGameFromDB(data[0]);
+// تابع کمکی برای لاگ‌برداری/نمایش بر اساس حالت دیباگ
+function debugLog(message) {
+    if (DEBUG_MODE) {
+        // اگر در حالت دیباگ هستیم، اجرا را متوقف می‌کنیم
+        alert(`[DEBUG] ${message}`);
     } else {
-      alert("Creating new user...");
-      await createUser();
+        // اگر در حالت اجرای عادی هستیم، فقط در کنسول لاگ می‌کنیم
+        console.log(`[DEBUG] ${message}`);
     }
-
-    alert("Hiding loader...");
-    hideLoader();
-
-  } catch(err){
-    alert("Init Crash: " + err.message);
-    hideLoader();
-  }
-  }
-
-let loaderTimeout;
-
-function showLoader(){
-  const loader = document.getElementById("loading-screen");
-  loader.style.display = "flex";
-  loader.style.opacity = "1";
-
-  // fail-safe: اگر دیتابیس هنگ کرد بعد 6 ثانیه باز هم بازی بالا بیاد
-  loaderTimeout = setTimeout(()=>{
-    console.log("DB timeout - forcing load");
-    hideLoader();
-  },6000);
 }
 
-function hideLoader(){
-  const loader = document.getElementById("loading-screen");
-  const home = document.getElementById("home");
+// --- توابع اصلی شما ---
 
-  clearTimeout(loaderTimeout);
+function showLoader() {
+    // ... کد نمایش لودینگ شما (فرض می‌شود که این تابع درست کار می‌کند)
+    console.log("Loader is shown.");
+    // این تابع ۶ ثانیه صبر می‌کند تا به اجبار لودینگ را پنهان کند
+    setTimeout(() => {
+        console.log("Timeout reached, forcing loader hide.");
+        hideLoader();
+    }, 6000);
+}
 
-  loader.style.opacity = "0";
-  setTimeout(()=>{
-    loader.style.display = "none";
-    home.classList.add("active");
+function hideLoader() {
+    // ... کد پنهان کردن لودینگ و رندر کردن صفحه اصلی
+    debugLog("Loader is hidden. Application flow should continue.");
+    // اگر نیاز به بارگذاری تم یا موارد دیگر است، اینجا قرار می‌گیرد.
+    // مثال:
+    // applyTheme(currentTheme);
+    // renderThemeSelector();
+}
 
-    // تم و UI بعد از لود
-    applyTheme(game.currentTheme);
-    renderThemeSelector();
-    updateUI();
+async function initUser(){
 
-  },400);
-  }
+    debugLog("Init started");
+    await new Promise(r => setTimeout(r, 500));
+
+    showLoader();
+
+    try {
+
+        debugLog("Checking Bale connection...");
+
+        if (window.Bale && Bale.WebApp) {
+            Bale.WebApp.ready();
+            const user = Bale.WebApp.initDataUnsafe?.user;
+            if(user){
+                baleUserId = user.id.toString();
+                debugLog(`Bale ID found: ${baleUserId}`);
+            }
+        }
+
+        if(!baleUserId){
+            debugLog("No Bale ID provided. Using test ID from LocalStorage.");
+            baleUserId = localStorage.getItem("test_user_id");
+            if(!baleUserId){
+                baleUserId = "test_" + Math.floor(Math.random()*9999999);
+                localStorage.setItem("test_user_id", baleUserId);
+                debugLog(`New Test ID created: ${baleUserId}`);
+            }
+        }
+
+        debugLog("Fetching user data from Supabase...");
+
+        const { data, error } = await supabase
+          .from("users")
+          .select("*")
+          .eq("bale_id", baleUserId);
+
+        if(error){
+            debugLog(`Supabase SELECT Error: ${error.message}`);
+            hideLoader();
+            return;
+        }
+
+        debugLog("User data fetched successfully.");
+
+        if(data && data.length > 0){
+            debugLog("User exists in DB. Loading game data.");
+            loadGameFromDB(data[0]);
+        } else {
+            debugLog("User not found. Creating new user entry.");
+            await createUser();
+        }
+
+        debugLog("Initialization complete. Hiding loader now.");
+        hideLoader();
+
+    } catch(err){
+        debugLog(`FATAL CRASH during initialization: ${err.message}`);
+        hideLoader();
+    }
+}
   
 async function createUser(){
 
