@@ -419,6 +419,13 @@ body{
   color:#aaa;
 }
 
+#profile .profile-card{
+  margin-bottom:25px;
+}
+#profile{
+  gap:15px;
+}
+  
 .theme-select-item{
   background:#222;
   padding:12px;
@@ -778,7 +785,9 @@ function getDefaultGame(){
     rechargeSpeed: 1,
     xp: 0,
     level: 1,
-    xpNeed: 50
+    xpNeed: 50,
+    themesOwned: ["dark"],
+    currentTheme: "dark",
   };
 }
 
@@ -926,6 +935,7 @@ let lastTime = parseInt(localStorage.getItem("lastEnergyTime")) || Date.now();
 let now = Date.now();
 let diff = Math.floor((now - lastTime) / 1000);
 
+game.maxEnergy = 100 + (game.energyLevel * 20);
 game.energy = Math.min(game.maxEnergy, game.energy + diff);
 
 localStorage.setItem("lastEnergyTime", Date.now());
@@ -1300,16 +1310,36 @@ function buyTheme(name){
 
 function updateThemeShopUI(){
 
+  const prices = {
+    dark: 0,
+    pink: 50000,
+    neon: 120000
+  };
+
   document.querySelectorAll("[onclick^='buyTheme']").forEach(btn=>{
+
     const themeName = btn.getAttribute("onclick").match(/'(.*?)'/)[1];
+    const price = prices[themeName];
+
+    btn.style.opacity = 1;
+    btn.disabled = false;
 
     if(game.themesOwned.includes(themeName)){
       btn.innerText = "Owned";
       btn.disabled = true;
       btn.style.opacity = 0.5;
     }
+    else if(game.coins < price){
+      btn.innerText = "Buy";
+      btn.disabled = false; // مهم: فعال باشه که Alert بده
+    }
+    else{
+      btn.innerText = "Buy";
+      btn.disabled = false;
+    }
+
   });
-}
+  }
 
 function renderThemeSelector(){
 
