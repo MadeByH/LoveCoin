@@ -1283,15 +1283,19 @@ function buyTheme(name){
     return;
   }
 
-  if(game.coins >= prices[name]){
-    game.coins -= prices[name];
-    game.themesOwned.push(name);
-    showCustomAlert("Theme purchased 🎨");
-    updateUI();
-    updateThemeShopUI();
-  }else{
+  let price = prices[name];
+
+  if(game.coins < price){
     showCustomAlert("❌ Not enough coins!");
+    return;
   }
+
+  game.coins -= price;
+  game.themesOwned.push(name);
+
+  showCustomAlert("🎨 Theme purchased!");
+  updateUI();
+  renderThemeSelector();
 }
 
 function updateThemeShopUI(){
@@ -1317,12 +1321,15 @@ function renderThemeSelector(){
     const btn = document.createElement("div");
     btn.className = "theme-select-item";
 
-    btn.innerHTML = `
-      ${theme.toUpperCase()}
-      ${game.currentTheme === theme ? " (Active)" : ""}
-    `;
+    if(game.currentTheme === theme){
+      btn.style.border = "1px solid gold";
+      btn.style.boxShadow = "0 0 10px gold";
+    }
+
+    btn.innerText = theme.toUpperCase();
 
     btn.onclick = () => {
+      game.currentTheme = theme;
       applyTheme(theme);
       renderThemeSelector();
     };
