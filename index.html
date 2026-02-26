@@ -355,6 +355,46 @@ body{
   left:29px;
   background:#111;
 }
+
+.profile-card{
+  width:90%;
+  background:#1a1a1a;
+  border-radius:18px;
+  padding:20px;
+  box-shadow:0 0 20px rgba(255,105,180,0.3);
+  margin-top:20px;
+}
+
+.profile-top{
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+
+.profile-avatar{
+  width:80px;
+  height:80px;
+  border-radius:50%;
+  background:linear-gradient(45deg,#ff4da6,#ff0080);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:32px;
+  color:white;
+}
+
+.profile-stats{
+  display:flex;
+  justify-content:space-around;
+  margin-top:20px;
+  text-align:center;
+}
+
+.profile-stats div span{
+  display:block;
+  font-size:12px;
+  color:#aaa;
+}
   
 </style>
 </head>
@@ -493,6 +533,33 @@ body{
   
 <div id="profile" class="page">
   <h2>Profile</h2>
+  <div class="profile-card">
+    <div class="profile-top">
+      <div class="profile-avatar">
+        <i class="fa-solid fa-user"></i>
+      </div>
+      <div class="profile-info">
+        <h3 id="profileName">Player</h3>
+        <p>ID: <span id="profileId">0001</span></p>
+        <p>Level: <span id="profileLevel">1</span></p>
+      </div>
+    </div>
+
+    <div class="profile-stats">
+      <div>
+        <strong id="profileCoins">0</strong>
+        <span>Coins</span>
+      </div>
+      <div>
+        <strong id="profileLove">0</strong>
+        <span>Love</span>
+      </div>
+      <div>
+        <strong id="profileTap">1</strong>
+        <span>Tap Lv</span>
+      </div>
+    </div>
+  </div>
   <div class="setting-row">
     <span>
       <b>Convert to Love Coin</b><br>
@@ -761,6 +828,11 @@ function updateUI(){
   document.getElementById("topBots").innerText = game.autoClickerLevel;
   document.getElementById("topInvites").innerText = game.invites;
 
+  document.getElementById("profileLevel").innerText = game.level;
+  document.getElementById("profileCoins").innerText = formatNumber(game.coins);
+  document.getElementById("profileLove").innerText = game.loveCoins;
+  document.getElementById("profileTap").innerText = game.tapLevel;
+  
   updateShopLocks();
 }
 
