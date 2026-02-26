@@ -5,6 +5,9 @@
 <title>Love Coin</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+  
 <style>
 body{
   margin:0;
@@ -204,6 +207,18 @@ body{
   align-items:center;
   gap:5px;
 }
+
+.topFA{
+  font-size:18px;
+  color:#aaa;
+  width:22px;
+  text-align:center;
+}
+
+.topItem:hover .topFA{
+  color:gold;
+  text-shadow:0 0 8px gold;
+}
   
 .navbar{
   height:70px;
@@ -303,16 +318,31 @@ body{
 
 <div class="topBar">
 
+  <!-- Love Coin (همون لوگوی خودت) -->
   <div class="topItem">
-    💖 <span id="topLove">0</span>
+    <img src="https://cdn.imgurl.ir/uploads/p719635__.png" class="topIcon">
+    <div class="topInfo">
+      <span class="topLabel">Love</span>
+      <span id="topLove" class="topValue">0</span>
+    </div>
   </div>
 
+  <!-- Bots -->
   <div class="topItem">
-    🤖 <span id="topBots">0</span>
+    <i class="fa-solid fa-robot topFA"></i>
+    <div class="topInfo">
+      <span class="topLabel">Bots</span>
+      <span id="topBots" class="topValue">0</span>
+    </div>
   </div>
 
+  <!-- Invites -->
   <div class="topItem">
-    👥 <span id="topInvites">0</span>
+    <i class="fa-solid fa-user-group topFA"></i>
+    <div class="topInfo">
+      <span class="topLabel">Invites</span>
+      <span id="topInvites" class="topValue">0</span>
+    </div>
   </div>
 
 </div>
