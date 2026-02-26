@@ -964,6 +964,7 @@ let autoActiveUntil = 0;
 let comboValue = 0;
 let comboMax = 100;
 let comboTimeout;
+initUser();
   
 // جلوگیری از NaN
 function fixNumbers(){
@@ -1642,7 +1643,6 @@ setInterval(()=>{
   localStorage.setItem("lastEnergyTime", Date.now());
 },3000);
 
-initUser();
 </script>
 </body>
 </html>
