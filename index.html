@@ -782,9 +782,10 @@ let baleUserId = null;
 
 async function initUser(){
 
+  showLoader();
+
   try {
 
-    // گرفتن شناسه کاربر
     if (window.Bale && Bale.WebApp) {
       Bale.WebApp.ready();
       const user = Bale.WebApp.initDataUnsafe?.user;
@@ -801,7 +802,6 @@ async function initUser(){
       }
     }
 
-    // گرفتن کاربر بدون single
     const { data, error } = await supabase
       .from("users")
       .select("*")
@@ -827,14 +827,36 @@ async function initUser(){
   }
   }
 
-function hideLoader(){
-  const loader = document.getElementById('loading-screen');
-  const home = document.getElementById('home');
+let loaderTimeout;
 
-  loader.style.opacity = '0';
+function showLoader(){
+  const loader = document.getElementById("loading-screen");
+  loader.style.display = "flex";
+  loader.style.opacity = "1";
+
+  // fail-safe: اگر دیتابیس هنگ کرد بعد 6 ثانیه باز هم بازی بالا بیاد
+  loaderTimeout = setTimeout(()=>{
+    console.log("DB timeout - forcing load");
+    hideLoader();
+  },6000);
+}
+
+function hideLoader(){
+  const loader = document.getElementById("loading-screen");
+  const home = document.getElementById("home");
+
+  clearTimeout(loaderTimeout);
+
+  loader.style.opacity = "0";
   setTimeout(()=>{
-    loader.style.display = 'none';
-    home.classList.add('active');
+    loader.style.display = "none";
+    home.classList.add("active");
+
+    // تم و UI بعد از لود
+    applyTheme(game.currentTheme);
+    renderThemeSelector();
+    updateUI();
+
   },400);
   }
   
@@ -963,26 +985,6 @@ document.querySelectorAll(".toggle").forEach(toggle=>{
   });
 });
 
-  
-// ===== LOADING FIX =====
-window.addEventListener('load', () => {
-  const loader = document.getElementById('loading-screen');
-  const home = document.getElementById('home');
-
-  setTimeout(()=>{
-    loader.style.opacity = '0';
-    setTimeout(() => {
-      loader.style.display = 'none';
-      home.classList.add('active');
-    }, 500);
-  },3500); // ← زمان دلخواه
-
-  game.themesOwned = game.themesOwned || ["dark"];
-  game.currentTheme = game.currentTheme || "dark";
-  applyTheme(game.currentTheme);
-  renderThemeSelector();
-  
-});
 
 if(!game.loveCoins) game.loveCoins = 0;
 if(!game.invites) game.invites = 0;
