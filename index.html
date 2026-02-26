@@ -782,40 +782,62 @@ let baleUserId = null;
 
 async function initUser(){
 
-  // اگر داخل MiniApp بله باشه
-  if (window.Bale && Bale.WebApp) {
-    Bale.WebApp.ready();
-    const user = Bale.WebApp.initDataUnsafe?.user;
-    if(user){
-      baleUserId = user.id.toString();
-    }
-  }
+  try {
 
-  // اگر داخل مرورگر معمولی باشه (برای تست)
-  if(!baleUserId){
-    baleUserId = localStorage.getItem("test_user_id");
+    // گرفتن شناسه کاربر
+    if (window.Bale && Bale.WebApp) {
+      Bale.WebApp.ready();
+      const user = Bale.WebApp.initDataUnsafe?.user;
+      if(user){
+        baleUserId = user.id.toString();
+      }
+    }
+
     if(!baleUserId){
-      baleUserId = "test_" + Math.floor(Math.random()*9999999);
-      localStorage.setItem("test_user_id", baleUserId);
+      baleUserId = localStorage.getItem("test_user_id");
+      if(!baleUserId){
+        baleUserId = "test_" + Math.floor(Math.random()*9999999);
+        localStorage.setItem("test_user_id", baleUserId);
+      }
     }
+
+    // گرفتن کاربر بدون single
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("bale_id", baleUserId);
+
+    if(error){
+      console.log("Select error:", error);
+      hideLoader();
+      return;
+    }
+
+    if(data && data.length > 0){
+      loadGameFromDB(data[0]);
+    } else {
+      await createUser();
+    }
+
+    hideLoader();
+
+  } catch(err){
+    console.log("Init error:", err);
+    hideLoader();
+  }
   }
 
-  // چک کن کاربر وجود داره؟
-  const { data, error } = await supabase
-    .from("users")
-    .select("*")
-    .eq("bale_id", baleUserId)
-    .single();
+function hideLoader(){
+  const loader = document.getElementById('loading-screen');
+  const home = document.getElementById('home');
 
-  if(data){
-    console.log("User Loaded");
-    loadGameFromDB(data);
-  } else {
-    console.log("Creating new user...");
-    await createUser();
+  loader.style.opacity = '0';
+  setTimeout(()=>{
+    loader.style.display = 'none';
+    home.classList.add('active');
+  },400);
   }
-}
-
+  
 async function createUser(){
 
   const { data, error } = await supabase
