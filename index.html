@@ -308,6 +308,22 @@ body{
   transform:scale(1.05);
   box-shadow:0 0 10px gold;
 }
+
+.setting-row.locked{
+  opacity:0.4;
+  border:1px solid #444;
+}
+
+.setting-row.nomoney{
+  opacity:0.8;
+  border:1px solid #aa6600;
+}
+
+.setting-row.available{
+  opacity:1;
+  border:1px solid gold;
+  box-shadow:0 0 10px rgba(255,215,0,0.3);
+}
   
 .toggle{
   width:55px;
@@ -941,45 +957,6 @@ function requiredLevel(item, nextLevel){
       return 1;
   }
 }
-
-function updateShopLocks(){
-
-  // TAP
-  let tapNext = game.tapLevel + 1;
-  let tapNeed = requiredLevel("tap", tapNext);
-  lockRow("tapLv", tapNeed);
-
-  // ENERGY
-  let energyNext = game.energyLevel + 1;
-  let energyNeed = requiredLevel("energy", energyNext);
-  lockRow("energyLv", energyNeed);
-
-  // RECHARGE
-  let rechargeNext = game.rechargeLevel + 1;
-  let rechargeNeed = requiredLevel("recharge", rechargeNext);
-  lockRow("rechargeLv", rechargeNeed);
-
-  // AUTO
-  let autoNext = game.autoClickerLevel + 1;
-  let autoNeed = requiredLevel("auto", autoNext);
-  lockRow("autoLv", autoNeed);
-}
-
-function lockRow(id, required){
-
-  const row = document.getElementById(id).closest(".setting-row");
-  const btn = row.querySelector("button");
-
-  if(game.level < required){
-    row.style.opacity = "0.5";
-    btn.innerText = "🔒 Lv " + required;
-    btn.disabled = true;
-  }else{
-    row.style.opacity = "1";
-    btn.innerText = "Upgrade";
-    btn.disabled = false;
-  }
-}
   
   
 // ===== SHOP SAFE =====
@@ -1068,6 +1045,62 @@ function upgradeAuto(){
     showCustomAlert("❌ Not enough coins!");
   }
   }
+
+
+function updateShopLocks(){
+
+  updateRow("tap", "tapLv", "tapCost", "tapNeed");
+  updateRow("energy", "energyLv", "energyCost", "energyNeed");
+  updateRow("recharge", "rechargeLv", "rechargeCost", "rechargeNeed");
+  updateRow("auto", "autoLv", "autoCost", "autoNeed");
+}
+
+function updateRow(type, levelId, costId, needId){
+
+  const row = document.getElementById(levelId).closest(".setting-row");
+  const btn = row.querySelector("button");
+
+  let currentLevel = game[type + "Level"];
+  let nextLevel = currentLevel + 1;
+  let need = requiredLevel(type, nextLevel);
+
+  let cost;
+
+  switch(type){
+    case "tap":
+      cost = Math.floor(250 * Math.pow(1.6, game.tapLevel - 1));
+      break;
+    case "energy":
+      cost = Math.floor(500 * Math.pow(1.5, game.energyLevel));
+      break;
+    case "recharge":
+      cost = Math.floor(10000 * Math.pow(1.7, game.rechargeLevel));
+      break;
+    case "auto":
+      cost = Math.floor(100000 * Math.pow(1.8, game.autoClickerLevel));
+      break;
+  }
+
+  document.getElementById(needId).innerText = need;
+
+  row.classList.remove("locked","nomoney","available");
+
+  if(game.level < need){
+    row.classList.add("locked");
+    btn.innerText = "🔒";
+    btn.disabled = true;
+  }
+  else if(game.coins < cost){
+    row.classList.add("nomoney");
+    btn.innerText = "💰";
+    btn.disabled = true;
+  }
+  else{
+    row.classList.add("available");
+    btn.innerText = "Upgrade";
+    btn.disabled = false;
+  }
+}
   
 
 // ===== PAGE SYSTEM =====
