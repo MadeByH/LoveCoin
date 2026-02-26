@@ -769,7 +769,108 @@ backdrop-filter: blur(6px);
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
 <script>
+const SUPABASE_URL = "https://tdgcjbxntesdegjevghe.supabase.co";
+const SUPABASE_KEY = "sb_publishable_yaxFo7qO5wfWk4tmlFT-CA_YybfbSUS";
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let baleUserId = null;
+
+async function initUser(){
+
+  // اگر داخل MiniApp بله باشه
+  if (window.Bale && Bale.WebApp) {
+    Bale.WebApp.ready();
+    const user = Bale.WebApp.initDataUnsafe?.user;
+    if(user){
+      baleUserId = user.id.toString();
+    }
+  }
+
+  // اگر داخل مرورگر معمولی باشه (برای تست)
+  if(!baleUserId){
+    baleUserId = localStorage.getItem("test_user_id");
+    if(!baleUserId){
+      baleUserId = "test_" + Math.floor(Math.random()*9999999);
+      localStorage.setItem("test_user_id", baleUserId);
+    }
+  }
+
+  // چک کن کاربر وجود داره؟
+  const { data, error } = await supabase
+    .from("users")
+    .select("*")
+    .eq("bale_id", baleUserId)
+    .single();
+
+  if(data){
+    console.log("User Loaded");
+    loadGameFromDB(data);
+  } else {
+    console.log("Creating new user...");
+    await createUser();
+  }
+}
+
+async function createUser(){
+
+  const { data, error } = await supabase
+    .from("users")
+    .insert([
+      {
+        bale_id: baleUserId,
+        coins: 0,
+        love_coins: 0
+      }
+    ])
+    .select()
+    .single();
+
+  if(data){
+    loadGameFromDB(data);
+  }
+}
+
+function loadGameFromDB(data){
+
+  game.coins = data.coins;
+  game.loveCoins = data.love_coins;
+  game.level = data.level;
+  game.xp = data.xp;
+  game.energy = data.energy;
+  game.tapLevel = data.tap_level;
+  game.autoClickerLevel = data.auto_level;
+  game.energyLevel = data.energy_level;
+  game.rechargeLevel = data.recharge_level;
+
+  updateUI();
+}
+
+setInterval(saveToDB, 5000);
+
+async function saveToDB(){
+
+  if(!baleUserId) return;
+
+  await supabase
+    .from("users")
+    .update({
+      coins: game.coins,
+      love_coins: game.loveCoins,
+      level: game.level,
+      xp: game.xp,
+      energy: game.energy,
+      tap_level: game.tapLevel,
+      auto_level: game.autoClickerLevel,
+      energy_level: game.energyLevel,
+      recharge_level: game.rechargeLevel
+    })
+    .eq("bale_id", baleUserId);
+}
+  
 // ===== SAFE LOAD GAME =====
 function getDefaultGame(){
   return {
@@ -1497,6 +1598,7 @@ setInterval(()=>{
   localStorage.setItem("lastEnergyTime", Date.now());
 },3000);
 
+initUser();
 updateUI();
 </script>
 </body>
