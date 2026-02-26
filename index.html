@@ -66,7 +66,8 @@ body{
   flex-direction:column;
   align-items:center;
   padding-top:60px;
-  padding-bottom:10px;
+  padding-bottom:80px;
+  overflow-y:auto;
 }
 
 .active{
@@ -356,6 +357,29 @@ body{
   background:#111;
 }
 
+.theme-shop-container{
+  width:90%;
+  max-width:420px;
+  background:#151515;
+  border-radius:16px;
+  padding:15px;
+  margin-top:15px;
+  border:1px solid #333;
+  box-shadow:0 0 20px rgba(255,105,180,0.1);
+}
+
+.theme-shop-container .setting-row{
+  width:100%;
+}
+  
+#shop h2{
+  margin-bottom:20px;
+}
+
+#shop{
+  gap:10px;
+}
+  
 .profile-card{
   width:90%;
   background:#1a1a1a;
@@ -814,6 +838,12 @@ window.addEventListener('load', () => {
       home.classList.add('active');
     }, 500);
   },3500); // ← زمان دلخواه
+
+  game.themesOwned = game.themesOwned || ["dark"];
+  game.currentTheme = game.currentTheme || "dark";
+  applyTheme(game.currentTheme);
+  renderThemeSelector();
+  
 });
 
 if(!game.loveCoins) game.loveCoins = 0;
@@ -830,12 +860,6 @@ const xpText = document.getElementById("xpText");
 const xpNeedText = document.getElementById("xpNeedText");
 const levelText = document.getElementById("levelText");
 const clickSound = new Audio('https://uploadkon.ir/uploads/d14f25_26374coin-jingle-6996422-1.mp3'); 
-
-
-game.themesOwned = game.themesOwned || ["dark"];
-game.currentTheme = game.currentTheme || "dark";
-applyTheme(game.currentTheme);
-renderThemeSelector();
   
 
 // ===== FORMAT NUMBER SAFE =====
