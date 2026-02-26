@@ -148,6 +148,38 @@ body{
   margin-top:5px;
   text-align:center;
 }
+
+#loveFlash{
+  position:fixed;
+  inset:0;
+  background:rgba(255,0,120,0.4);
+  opacity:0;
+  pointer-events:none;
+  transition:0.4s;
+  z-index:9998;
+}
+
+#loveReward{
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%) scale(0.5);
+  opacity:0;
+  z-index:9999;
+  pointer-events:none;
+  transition:0.4s;
+}
+
+.loveBigCoin{
+  width:160px;
+  filter:drop-shadow(0 0 40px #ff4da6);
+  animation:pulseLove 1s infinite alternate;
+}
+
+@keyframes pulseLove{
+  from{ transform:scale(1); }
+  to{ transform:scale(1.15); }
+}
   
 .navbar{
   height:70px;
@@ -336,6 +368,17 @@ body{
   <h2>Profile</h2>
   <div class="setting-row">
     <span>
+      <b>Convert to Love Coin</b><br>
+      100K Coins → 1 Love Coin
+    </span>
+    <div>
+      <button onclick="convertLove(1)">1x</button>
+      <button onclick="convertLove(5)">5x</button>
+      <button onclick="convertLove('max')">MAX</button>
+    </div>
+  </div>
+  <div class="setting-row">
+    <span>
       <b>Daily Reward</b><br>
       Claim your daily coins!
     </span>
@@ -418,6 +461,12 @@ backdrop-filter: blur(6px);
     ">OK</button>
   </div>
 </div>
+
+<div id="loveFlash"></div>
+
+<div id="loveReward">
+  <img src="https://cdn.imgurl.ir/uploads/p719635__.png" class="loveBigCoin">
+</div>
   
 <div class="navbar">
   <div class="navbtn active" onclick="showPage('home', this)">Home</div>
@@ -431,6 +480,7 @@ backdrop-filter: blur(6px);
 function getDefaultGame(){
   return {
     coins: 0,
+    loveCoins: 0,
     energy: 100,
     maxEnergy: 100,
     tapLevel: 1,
@@ -500,7 +550,7 @@ window.addEventListener('load', () => {
     }, 500);
   },3500); // ← زمان دلخواه
 });
-
+if(!game.loveCoins) game.loveCoins = 0;
 
 // ===== ELEMENTS =====
 const countEl = document.getElementById("count");
@@ -832,8 +882,56 @@ function closeCustomAlert(){
   alertBox.style.pointerEvents = "none";
   alertBox.style.transform = "translate(-50%,-50%) scale(0.8)";
   }
+
+function showLoveEffect(){
+
+  const flash = document.getElementById("loveFlash");
+  const reward = document.getElementById("loveReward");
+
+  flash.style.opacity = "1";
+  reward.style.opacity = "1";
+  reward.style.transform = "translate(-50%,-50%) scale(1)";
+
+  setTimeout(()=>{
+    flash.style.opacity = "0";
+  },300);
+
+  setTimeout(()=>{
+    reward.style.opacity = "0";
+    reward.style.transform = "translate(-50%,-50%) scale(0.5)";
+  },2000);
+}
   
 
+function convertLove(mode){
+
+  let cost = 100000;
+
+  if(mode === "max"){
+    let amount = Math.floor(game.coins / cost);
+    if(amount <= 0){
+      showCustomAlert("❌ Not enough coins!");
+      return;
+    }
+    game.coins -= amount * cost;
+    game.loveCoins += amount;
+  }
+  else{
+    let amount = mode;
+    if(game.coins < cost * amount){
+      showCustomAlert("❌ Not enough coins!");
+      return;
+    }
+    game.coins -= cost * amount;
+    game.loveCoins += amount;
+  }
+
+  showLoveEffect();
+  showCustomAlert("💖 Love Coin received!");
+  updateUI();
+}
+
+  
 function claimDaily(){
   let lastClaim = localStorage.getItem("dailyRewardTime");
   let now = Date.now();
