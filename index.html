@@ -358,18 +358,17 @@ body{
 }
 
 .theme-shop-container{
-  width:90%;
-  max-width:420px;
-  background:#151515;
-  border-radius:16px;
-  padding:15px;
-  margin-top:15px;
-  border:1px solid #333;
-  box-shadow:0 0 20px rgba(255,105,180,0.1);
+  width:85%;
+  max-width:400px;
+  padding:0; /* مهم */
+  background:transparent;
+  border:none;
+  box-shadow:none;
 }
 
 .theme-shop-container .setting-row{
   width:100%;
+  box-sizing:border-box; /* مهم */
 }
   
 #shop h2{
@@ -1259,7 +1258,7 @@ function updateRow(type, levelId, costId, needId){
   }
   else if(game.coins < cost){
     row.classList.add("nomoney");
-    btn.innerText = "💰";
+    btn.innerText = "Buy";
     btn.disabled = false;
   }
   else{
