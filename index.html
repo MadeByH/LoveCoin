@@ -847,63 +847,37 @@ function debugMsg(msg) {
 
 // حالا initUser رو با این تابع به‌روزرسانی کنید
 async function initUser() {
-  debugMsg("شروع initUser()");
-  await new Promise(r => setTimeout(r, 500));
+        debugMsg("شروع اجرای initUser...");
 
-  try {
-    if (window.Bale && Bale.WebApp) {
-      debugMsg("Bale WebApp آماده‌سازی...");
-      Bale.WebApp.ready();
-      const user = Bale.WebApp.initDataUnsafe?.user;
-      if (user) {
-        baleUserId = user.id.toString();
-        debugMsg("شناسه کاربر از Bale: " + baleUserId);
-      } else {
-        debugMsg("کاربر از Bale پیدا نشد.");
-      }
-    } else {
-      debugMsg("window.Bale در دسترس نیست.");
+        if (!window.Bale || !window.Bale.WebApp) {
+            debugMsg("❌ خطا: شیء Bale.WebApp در دسترس نیست. آیا خارج از مینی‌اپ هستید؟");
+            return;
+        }
+
+        try {
+            // 1. نمایش آماده شدن SDK
+            debugMsg("فراخوانی Bale.WebApp.ready()...");
+            await window.Bale.WebApp.ready();
+            debugMsg("✅ Bale.WebApp.ready() با موفقیت اجرا شد.");
+
+            // 2. گرفتن اطلاعات کاربر
+            const user = await window.Bale.WebApp.getUserInfo();
+            debugMsg(`کاربر شناسایی شد: ID=${user.userId}, Name=${user.firstName}`);
+
+            // 3. اینجا منطق اصلی شما می‌آید (مثلاً لود کردن داده)
+            debugMsg("در حال اجرای منطق اصلی اپ...");
+            
+            // اینجا کد شما برای حذف لودینگ صفحه اصلی می‌آید
+            const appLoader = document.getElementById('app-loader'); // فرض می‌کنیم آیدی لودر صفحه شما این است
+            if (appLoader) {
+                 appLoader.style.display = 'none'; // یا هر کاری که لودر اصلی را مخفی می‌کند
+            }
+            debugMsg("🎉 پایان موفقیت‌آمیز initUser.");
+
+        } catch (error) {
+            debugMsg(`❌ خطای جدی در initUser: ${error.message || error}`);
+        }
     }
-
-    if (!baleUserId) {
-      baleUserId = localStorage.getItem("test_user_id");
-      if (!baleUserId) {
-        baleUserId = "test_" + Math.floor(Math.random() * 9999999);
-        localStorage.setItem("test_user_id", baleUserId);
-        debugMsg("شناسه تستی جدید ساخته شد: " + baleUserId);
-      } else {
-        debugMsg("شناسه تستی از localStorage خوانده شد: " + baleUserId);
-      }
-    }
-
-    debugMsg("در حال خواندن اطلاعات از Supabase...");
-
-    const { data, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("bale_id", baleUserId);
-
-    if (error) {
-      debugMsg("خطا در کوئری Supabase: " + error.message);
-      return hideLoader();
-    }
-
-    if (data && data.length > 0) {
-      debugMsg("کاربر در دیتابیس موجود است.");
-      loadGameFromDB(data[0]);
-    } else {
-      debugMsg("کاربر جدید ساخته می‌شود...");
-      await createUser();
-    }
-
-    debugMsg("پایان initUser() → حالا hideLoader() صدا زده می‌شود.");
-    hideLoader();
-
-  } catch (err) {
-    debugMsg("خطا در اجرای initUser(): " + err.message);
-    hideLoader();
-  }
-}
   
 async function createUser(){
 
