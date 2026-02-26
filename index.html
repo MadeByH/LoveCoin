@@ -1103,7 +1103,7 @@ function updateRow(type, levelId, costId, needId){
   else if(game.coins < cost){
     row.classList.add("nomoney");
     btn.innerText = "💰";
-    btn.disabled = true;
+    btn.disabled = false;
   }
   else{
     row.classList.add("available");
