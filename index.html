@@ -740,6 +740,8 @@ function updateUI(){
   document.getElementById("topLove").innerText = game.loveCoins;
   document.getElementById("topBots").innerText = game.autoClickerLevel;
   document.getElementById("topInvites").innerText = game.invites;
+
+  updateShopLocks();
 }
 
 
@@ -913,9 +915,82 @@ function updateComboUI(){
 }
   
 
+// ===== REQUIRED PLAYER LEVEL SYSTEM =====
+
+function requiredLevel(item, nextLevel){
+
+  switch(item){
+
+    case "tap":
+      return 1 + Math.floor(nextLevel * 1.8);
+
+    case "energy":
+      return 2 + Math.floor(nextLevel * 2.2);
+
+    case "recharge":
+      return 4 + Math.floor(nextLevel * 2.5);
+
+    case "auto":
+      return 6 + Math.floor(nextLevel * 3.5);
+
+    default:
+      return 1;
+  }
+}
+
+function updateShopLocks(){
+
+  // TAP
+  let tapNext = game.tapLevel + 1;
+  let tapNeed = requiredLevel("tap", tapNext);
+  lockRow("tapLv", tapNeed);
+
+  // ENERGY
+  let energyNext = game.energyLevel + 1;
+  let energyNeed = requiredLevel("energy", energyNext);
+  lockRow("energyLv", energyNeed);
+
+  // RECHARGE
+  let rechargeNext = game.rechargeLevel + 1;
+  let rechargeNeed = requiredLevel("recharge", rechargeNext);
+  lockRow("rechargeLv", rechargeNeed);
+
+  // AUTO
+  let autoNext = game.autoClickerLevel + 1;
+  let autoNeed = requiredLevel("auto", autoNext);
+  lockRow("autoLv", autoNeed);
+}
+
+function lockRow(id, required){
+
+  const row = document.getElementById(id).closest(".setting-row");
+  const btn = row.querySelector("button");
+
+  if(game.level < required){
+    row.style.opacity = "0.5";
+    btn.innerText = "🔒 Lv " + required;
+    btn.disabled = true;
+  }else{
+    row.style.opacity = "1";
+    btn.innerText = "Upgrade";
+    btn.disabled = false;
+  }
+}
+  
+  
 // ===== SHOP SAFE =====
 function upgradeTap(){
+
+  let nextLevel = game.tapLevel + 1;
+  let need = requiredLevel("tap", nextLevel);
+
+  if(game.level < need){
+    showCustomAlert("🔒 Reach Level " + need);
+    return;
+  }
+
   let cost = Math.floor(250 * Math.pow(1.6, game.tapLevel - 1));
+
   if(game.coins >= cost){
     game.coins -= cost;
     game.tapLevel++;
@@ -926,38 +1001,64 @@ function upgradeTap(){
 }
   
 function upgradeEnergy(){
+
+  let nextLevel = game.energyLevel + 1;
+  let need = requiredLevel("energy", nextLevel);
+
+  if(game.level < need){
+    showCustomAlert("🔒 Reach Level " + need);
+    return;
+  }
+
   let cost = Math.floor(500 * Math.pow(1.5, game.energyLevel));
+
   if(game.coins >= cost){
     game.coins -= cost;
     game.energyLevel++;
-    game.maxEnergy = 100 + (game.energyLevel * 20);
     updateUI();
   }else{
     showCustomAlert("❌ Not enough coins!");
   }
-}
+  }
 
 function upgradeRecharge(){
+
+  let nextLevel = game.rechargeLevel + 1;
+  let need = requiredLevel("recharge", nextLevel);
+
+  if(game.level < need){
+    showCustomAlert("🔒 Reach Level " + need);
+    return;
+  }
+
   let cost = Math.floor(10000 * Math.pow(1.7, game.rechargeLevel));
+
   if(game.coins >= cost){
     game.coins -= cost;
     game.rechargeLevel++;
-    game.rechargeSpeed = 1 + game.rechargeLevel * 0.1;  // افزایش سرعت شارژ انرژی
+    game.rechargeSpeed = 1 + game.rechargeLevel * 0.1;
     updateUI();
   }else{
     showCustomAlert("❌ Not enough coins!");
   }
-}
+  }
   
 function upgradeAuto(){
-  let cost = Math.floor(100000 * Math.pow(1.7, game.autoClickerLevel));
+
+  let nextLevel = game.autoClickerLevel + 1;
+  let need = requiredLevel("auto", nextLevel);
+
+  if(game.level < need){
+    showCustomAlert("🔒 Reach Level " + need);
+    return;
+  }
+
+  let cost = Math.floor(100000 * Math.pow(1.8, game.autoClickerLevel));
 
   if(game.coins >= cost){
     game.coins -= cost;
     game.autoClickerLevel++;
-
-    autoActiveUntil = Date.now() + (12 * 60 * 60 * 1000); // 5 دقیقه فعال
-
+    autoActiveUntil = Date.now() + (12 * 60 * 60 * 1000);
     updateUI();
   }else{
     showCustomAlert("❌ Not enough coins!");
