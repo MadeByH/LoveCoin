@@ -219,6 +219,30 @@ body{
   color:gold;
   text-shadow:0 0 8px gold;
 }
+
+.topIcon{
+  width:22px;
+  height:22px;
+  object-fit:contain;
+  filter: drop-shadow(0 0 6px gold);
+}
+
+.topInfo{
+  display:flex;
+  flex-direction:column;
+  line-height:1;
+}
+
+.topLabel{
+  font-size:10px;
+  color:#777;
+}
+
+.topValue{
+  font-size:14px;
+  font-weight:bold;
+  color:white;
+}
   
 .navbar{
   height:70px;
@@ -230,14 +254,27 @@ body{
 }
 
 .navbtn{
-  color:#888;
-  font-size:14px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  font-size:11px;
+  color:#777;
   cursor:pointer;
+  transition:0.2s;
+}
+
+.navIcon{
+  font-size:18px;
+  margin-bottom:3px;
 }
 
 .navbtn.active{
   color:gold;
-  font-weight:bold;
+}
+
+.navbtn.active .navIcon{
+  text-shadow:0 0 10px gold;
+  transform:scale(1.1);
 }
 
 .setting-row{
@@ -539,10 +576,27 @@ backdrop-filter: blur(6px);
 </div>
   
 <div class="navbar">
-  <div class="navbtn active" onclick="showPage('home', this)">Home</div>
-  <div class="navbtn" onclick="showPage('shop', this)">Shop</div>
-  <div class="navbtn" onclick="showPage('profile', this)">Profile</div>
-  <div class="navbtn" onclick="showPage('settings', this)">Settings</div>
+
+  <div class="navbtn active" onclick="showPage('home', this)">
+    <i class="fa-solid fa-house navIcon"></i>
+    <span>Home</span>
+  </div>
+
+  <div class="navbtn" onclick="showPage('shop', this)">
+    <i class="fa-solid fa-shop navIcon"></i>
+    <span>Shop</span>
+  </div>
+
+  <div class="navbtn" onclick="showPage('profile', this)">
+    <i class="fa-solid fa-user navIcon"></i>
+    <span>Profile</span>
+  </div>
+
+  <div class="navbtn" onclick="showPage('settings', this)">
+    <i class="fa-solid fa-gear navIcon"></i>
+    <span>Settings</span>
+  </div>
+
 </div>
 
 <script>
