@@ -812,8 +812,7 @@ window.addEventListener('load', () => {
 
 if(!game.loveCoins) game.loveCoins = 0;
 if(!game.invites) game.invites = 0;
-applyTheme(game.currentTheme);
-renderThemeSelector();
+
   
 // ===== ELEMENTS =====
 const countEl = document.getElementById("count");
@@ -829,6 +828,8 @@ const clickSound = new Audio('https://uploadkon.ir/uploads/d14f25_26374coin-jing
 
 game.themesOwned = game.themesOwned || ["dark"];
 game.currentTheme = game.currentTheme || "dark";
+applyTheme(game.currentTheme);
+renderThemeSelector();
   
 
 // ===== FORMAT NUMBER SAFE =====
@@ -1302,15 +1303,13 @@ function renderThemeSelector(){
 }
 
 function applyTheme(name){
-
   document.body.classList.remove("dark","pink","neon");
-
   document.body.classList.add(name);
 
   game.currentTheme = name;
 
-  localStorage.setItem("gameData", JSON.stringify(game));
-}
+  localStorage.setItem("loveCoinGame", JSON.stringify(game));
+  }
   
 
 // ===== PAGE SYSTEM =====
