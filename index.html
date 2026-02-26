@@ -395,6 +395,32 @@ body{
   font-size:12px;
   color:#aaa;
 }
+
+.theme-select-item{
+  background:#222;
+  padding:12px;
+  margin:8px 0;
+  border-radius:10px;
+  text-align:center;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.theme-select-item:hover{
+  background:#333;
+}
+
+body.dark{
+  background:#0f0f0f;
+}
+
+body.pink{
+  background:linear-gradient(135deg,#2a001f,#4d0039);
+}
+
+body.neon{
+  background:linear-gradient(135deg,#001f2a,#00394d);
+}
   
 </style>
 </head>
@@ -529,6 +555,22 @@ body{
     <button onclick="upgradeAuto()">Upgrade</button>
   </div>
 
+  <div class="setting-row">
+    <span>
+      <b>Pink Love Theme</b><br>
+      Cost: 50K Coins
+    </span>
+    <button onclick="buyTheme('pink')">Buy</button>
+  </div>
+
+  <div class="setting-row">
+    <span>
+      <b>Neon Blue Theme</b><br>
+      Cost: 120K Coins
+    </span>
+    <button onclick="buyTheme('neon')">Buy</button>
+  </div>
+  
 </div>
   
 <div id="profile" class="page">
@@ -597,6 +639,11 @@ body{
     <span>Floating +1</span>
     <div class="toggle" data-setting="floatingText"></div>
   </div>
+
+  <h3>🎨 Select Theme</h3>
+
+  <div id="themeSelectContainer"></div>
+  
 </div>
 
 <div id="levelUpPopup" style="
@@ -765,7 +812,9 @@ window.addEventListener('load', () => {
 
 if(!game.loveCoins) game.loveCoins = 0;
 if(!game.invites) game.invites = 0;
-
+applyTheme(game.currentTheme);
+renderThemeSelector();
+  
 // ===== ELEMENTS =====
 const countEl = document.getElementById("count");
 const energyText = document.getElementById("energyText");
@@ -776,6 +825,10 @@ const xpText = document.getElementById("xpText");
 const xpNeedText = document.getElementById("xpNeedText");
 const levelText = document.getElementById("levelText");
 const clickSound = new Audio('https://uploadkon.ir/uploads/d14f25_26374coin-jingle-6996422-1.mp3'); 
+
+
+game.themesOwned = game.themesOwned || ["dark"];
+game.currentTheme = game.currentTheme || "dark";
   
 
 // ===== FORMAT NUMBER SAFE =====
@@ -834,6 +887,7 @@ function updateUI(){
   document.getElementById("profileTap").innerText = game.tapLevel;
   
   updateShopLocks();
+  updateThemeShopUI();
 }
 
 
@@ -1182,6 +1236,80 @@ function updateRow(type, levelId, costId, needId){
     btn.innerText = "Upgrade";
     btn.disabled = false;
   }
+}
+
+
+// ===== Themes =====
+function buyTheme(name){
+
+  const prices = {
+    dark: 0,
+    pink: 50000,
+    neon: 120000
+  };
+
+  if(game.themesOwned.includes(name)){
+    showCustomAlert("Already purchased ✔");
+    return;
+  }
+
+  if(game.coins >= prices[name]){
+    game.coins -= prices[name];
+    game.themesOwned.push(name);
+    showCustomAlert("Theme purchased 🎨");
+    updateUI();
+    updateThemeShopUI();
+  }else{
+    showCustomAlert("❌ Not enough coins!");
+  }
+}
+
+function updateThemeShopUI(){
+
+  document.querySelectorAll("[onclick^='buyTheme']").forEach(btn=>{
+    const themeName = btn.getAttribute("onclick").match(/'(.*?)'/)[1];
+
+    if(game.themesOwned.includes(themeName)){
+      btn.innerText = "Owned";
+      btn.disabled = true;
+      btn.style.opacity = 0.5;
+    }
+  });
+}
+
+function renderThemeSelector(){
+
+  const container = document.getElementById("themeSelectContainer");
+  container.innerHTML = "";
+
+  game.themesOwned.forEach(theme => {
+
+    const btn = document.createElement("div");
+    btn.className = "theme-select-item";
+
+    btn.innerHTML = `
+      ${theme.toUpperCase()}
+      ${game.currentTheme === theme ? " (Active)" : ""}
+    `;
+
+    btn.onclick = () => {
+      applyTheme(theme);
+      renderThemeSelector();
+    };
+
+    container.appendChild(btn);
+  });
+}
+
+function applyTheme(name){
+
+  document.body.classList.remove("dark","pink","neon");
+
+  document.body.classList.add(name);
+
+  game.currentTheme = name;
+
+  localStorage.setItem("gameData", JSON.stringify(game));
 }
   
 
