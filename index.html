@@ -782,19 +782,25 @@ let baleUserId = null;
 
 async function initUser(){
 
+  alert("Init started");
+
   showLoader();
 
   try {
+
+    alert("Checking Bale...");
 
     if (window.Bale && Bale.WebApp) {
       Bale.WebApp.ready();
       const user = Bale.WebApp.initDataUnsafe?.user;
       if(user){
         baleUserId = user.id.toString();
+        alert("Bale ID: " + baleUserId);
       }
     }
 
     if(!baleUserId){
+      alert("No Bale ID, using test ID");
       baleUserId = localStorage.getItem("test_user_id");
       if(!baleUserId){
         baleUserId = "test_" + Math.floor(Math.random()*9999999);
@@ -802,27 +808,34 @@ async function initUser(){
       }
     }
 
+    alert("Fetching user from DB...");
+
     const { data, error } = await supabase
       .from("users")
       .select("*")
       .eq("bale_id", baleUserId);
 
     if(error){
-      console.log("Select error:", error);
+      alert("DB Select Error: " + error.message);
       hideLoader();
       return;
     }
 
+    alert("DB Response OK");
+
     if(data && data.length > 0){
+      alert("User exists");
       loadGameFromDB(data[0]);
     } else {
+      alert("Creating new user...");
       await createUser();
     }
 
+    alert("Hiding loader...");
     hideLoader();
 
   } catch(err){
-    console.log("Init error:", err);
+    alert("Init Crash: " + err.message);
     hideLoader();
   }
   }
