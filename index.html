@@ -1060,7 +1060,17 @@ function updateRow(type, levelId, costId, needId){
   const row = document.getElementById(levelId).closest(".setting-row");
   const btn = row.querySelector("button");
 
-  let currentLevel = game[type + "Level"];
+  let currentLevel;
+
+  if(type === "auto"){
+  currentLevel = game.autoClickerLevel;
+  }else if(type === "tap"){
+  currentLevel = game.tapLevel;
+  }else if(type === "energy"){
+  currentLevel = game.energyLevel;
+  }else if(type === "recharge"){
+  currentLevel = game.rechargeLevel;
+  }
   let nextLevel = currentLevel + 1;
   let need = requiredLevel(type, nextLevel);
 
