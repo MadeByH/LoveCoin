@@ -798,7 +798,7 @@ function addXP(amount){
   while(game.xp >= game.xpNeed){
     game.xp -= game.xpNeed;
     game.level++;
-    game.xpNeed = Math.floor(game.xpNeed * 1.5);
+    game.xpNeed = Math.floor(game.xpNeed * 1.8);
     game.coins += game.level * 10;
     showLevelUp();
   }
@@ -832,7 +832,7 @@ function addCoin(x,y){
   game.energy -= game.tapLevel;
 
   game.coins += game.tapLevel * comboMultiplier;
-  addXP(1);
+  addXP(game.tapLevel * 0.2);
 
 // ✅ حالا کمبو افزایش پیدا کنه
   comboValue += 15;
@@ -942,16 +942,16 @@ function requiredLevel(item, nextLevel){
   switch(item){
 
     case "tap":
-      return 1 + Math.floor(nextLevel * 1.8);
+      return 1 + Math.floor(nextLevel * 2.5);
 
     case "energy":
-      return 2 + Math.floor(nextLevel * 2.2);
+      return 2 + Math.floor(nextLevel * 2.9);
 
     case "recharge":
-      return 4 + Math.floor(nextLevel * 2.5);
+      return 4 + Math.floor(nextLevel * 3.2);
 
     case "auto":
-      return 6 + Math.floor(nextLevel * 3.5);
+      return 6 + Math.floor(nextLevel * 4.2);
 
     default:
       return 1;
