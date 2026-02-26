@@ -783,6 +783,7 @@ let baleUserId = null;
 async function initUser(){
 
   alert("Init started");
+  await new Promise(r => setTimeout(r, 500));
 
   showLoader();
 
