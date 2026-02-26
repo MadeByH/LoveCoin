@@ -72,6 +72,7 @@ body{
 
 #home{
   justify-content:center;
+  padding-top:60px;
 }
 
 .counter{
@@ -180,6 +181,29 @@ body{
   from{ transform:scale(1); }
   to{ transform:scale(1.15); }
 }
+
+.topBar{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:55px;
+  background:linear-gradient(90deg,#111,#1a1a1a);
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+  border-bottom:1px solid #333;
+  z-index:999;
+}
+
+.topItem{
+  color:white;
+  font-weight:bold;
+  font-size:14px;
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
   
 .navbar{
   height:70px;
@@ -277,6 +301,22 @@ body{
   <div class="loading-text">LOADING...</div>
 </div>
 
+<div class="topBar">
+
+  <div class="topItem">
+    💖 <span id="topLove">0</span>
+  </div>
+
+  <div class="topItem">
+    🤖 <span id="topBots">0</span>
+  </div>
+
+  <div class="topItem">
+    👥 <span id="topInvites">0</span>
+  </div>
+
+</div>
+  
 <div id="home" class="page">
 
   <div class="counter"><span id="count">0</span></div>
@@ -481,6 +521,7 @@ function getDefaultGame(){
   return {
     coins: 0,
     loveCoins: 0,
+    invites: 0,
     energy: 100,
     maxEnergy: 100,
     tapLevel: 1,
@@ -550,7 +591,9 @@ window.addEventListener('load', () => {
     }, 500);
   },3500); // ← زمان دلخواه
 });
+
 if(!game.loveCoins) game.loveCoins = 0;
+if(!game.invites) game.invites = 0;
 
 // ===== ELEMENTS =====
 const countEl = document.getElementById("count");
@@ -609,6 +652,10 @@ function updateUI(){
   document.getElementById("autoCost").innerText = formatNumber(autoCost);
   document.getElementById("energyCost").innerText = formatNumber(energyCost);
   document.getElementById("rechargeCost").innerText = formatNumber(rechargeCost);
+
+  document.getElementById("topLove").innerText = game.loveCoins;
+  document.getElementById("topBots").innerText = game.autoClickerLevel;
+  document.getElementById("topInvites").innerText = game.invites;
 }
 
 
@@ -616,8 +663,6 @@ function updateUI(){
 let lastTime = parseInt(localStorage.getItem("lastEnergyTime")) || Date.now();
 let now = Date.now();
 let diff = Math.floor((now - lastTime) / 1000);
-
-game.maxEnergy = 100 + (game.energyLevel * 20);
 
 game.energy = Math.min(game.maxEnergy, game.energy + diff);
 
