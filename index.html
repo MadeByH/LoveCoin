@@ -778,106 +778,90 @@ const SUPABASE_KEY = "sb_publishable_yaxFo7qO5wfWk4tmlFT-CA_YybfbSUS";
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let baleUserId = null;
+let baleUser = null;
+let game = null;
 
-// =================================================================
-// تنظیمات اشکال‌زدایی:
-// برای استفاده از پیام‌های پاپ‌آپ (توقف اجرا): true
-// برای استفاده از کنسول مرورگر (اجرای پیوسته): false
-const DEBUG_MODE = true; 
-// =================================================================
-
-// تابع کمکی برای لاگ‌برداری/نمایش بر اساس حالت دیباگ
-function debugLog(message) {
-    if (DEBUG_MODE) {
-        // اگر در حالت دیباگ هستیم، اجرا را متوقف می‌کنیم
-        alert(`[DEBUG] ${message}`);
-    } else {
-        // اگر در حالت اجرای عادی هستیم، فقط در کنسول لاگ می‌کنیم
-        console.log(`[DEBUG] ${message}`);
-    }
-}
-
-// --- توابع اصلی شما ---
-
-function showLoader() {
-    // ... کد نمایش لودینگ شما (فرض می‌شود که این تابع درست کار می‌کند)
-    console.log("Loader is shown.");
-    // این تابع ۶ ثانیه صبر می‌کند تا به اجبار لودینگ را پنهان کند
-    setTimeout(() => {
-        console.log("Timeout reached, forcing loader hide.");
-        hideLoader();
-    }, 6000);
-}
-
-function hideLoader() {
-    // ... کد پنهان کردن لودینگ و رندر کردن صفحه اصلی
-    debugLog("Loader is hidden. Application flow should continue.");
-    // اگر نیاز به بارگذاری تم یا موارد دیگر است، اینجا قرار می‌گیرد.
-    // مثال:
-    // applyTheme(currentTheme);
-    // renderThemeSelector();
-}
-
-// نمایش پیام دیباگ مستقیماً روی صفحه
-function debugMsg(msg) {
-  let box = document.getElementById("debug-box");
-  if (!box) {
-    box = document.createElement("div");
-    box.id = "debug-box";
-    Object.assign(box.style, {
-      position: "fixed",
-      bottom: "10px",
-      left: "10px",
-      background: "rgba(0,0,0,0.7)",
-      color: "lime",
-      padding: "6px 10px",
-      fontSize: "13px",
-      fontFamily: "monospace",
-      borderRadius: "5px",
-      zIndex: 99999,
-      maxWidth: "80%",
-      whiteSpace: "pre-wrap"
-    });
-    document.body.appendChild(box);
+// ⛔ اگر بیشتر از 10 ثانیه لودینگ موند، خطا بده
+setTimeout(()=>{
+  if(!game){
+    alert("❌ MiniApp Init Timeout");
   }
-  // هر پیام جدید رو به آخر اضافه می‌کنیم
-  box.textContent += "\n" + msg;
+},10000);
+
+
+// ✅ وقتی Bale آماده شد
+if (window.Bale && Bale.WebApp) {
+
+  Bale.WebApp.onReady(async () => {
+
+    try {
+
+      Bale.WebApp.ready();
+
+      baleUser = Bale.WebApp.initDataUnsafe?.user;
+
+      if(!baleUser){
+        alert("❌ No Bale user detected");
+        return;
+      }
+
+      alert("✅ Welcome " + (baleUser.username || "User"));
+
+      await initUser();
+
+    } catch(err){
+      alert("Init Error: " + err.message);
+    }
+
+  });
+
+} else {
+  alert("❌ Bale SDK not loaded");
 }
 
-// حالا initUser رو با این تابع به‌روزرسانی کنید
-async function initUser() {
-        debugMsg("شروع اجرای initUser...");
 
-        if (!window.Bale || !window.Bale.WebApp) {
-            debugMsg("❌ خطا: شیء Bale.WebApp در دسترس نیست. آیا خارج از مینی‌اپ هستید؟");
-            return;
-        }
+// ===== INIT USER FROM DB =====
+async function initUser(){
 
-        try {
-            // 1. نمایش آماده شدن SDK
-            debugMsg("فراخوانی Bale.WebApp.ready()...");
-            await window.Bale.WebApp.ready();
-            debugMsg("✅ Bale.WebApp.ready() با موفقیت اجرا شد.");
+  const { data, error } = await supabase
+    .from("users")
+    .select("*")
+    .eq("bale_id", baleUser.id)
+    .single();
 
-            // 2. گرفتن اطلاعات کاربر
-            const user = await window.Bale.WebApp.getUserInfo();
-            debugMsg(`کاربر شناسایی شد: ID=${user.userId}, Name=${user.firstName}`);
+  if(error && error.code !== "PGRST116"){
+    alert("DB Error: " + error.message);
+    return;
+  }
 
-            // 3. اینجا منطق اصلی شما می‌آید (مثلاً لود کردن داده)
-            debugMsg("در حال اجرای منطق اصلی اپ...");
-            
-            // اینجا کد شما برای حذف لودینگ صفحه اصلی می‌آید
-            const appLoader = document.getElementById('app-loader'); // فرض می‌کنیم آیدی لودر صفحه شما این است
-            if (appLoader) {
-                 appLoader.style.display = 'none'; // یا هر کاری که لودر اصلی را مخفی می‌کند
-            }
-            debugMsg("🎉 پایان موفقیت‌آمیز initUser.");
+  if(!data){
+    // کاربر جدید
+    const { data:newUser, error:insertError } = await supabase
+      .from("users")
+      .insert({
+        bale_id: baleUser.id,
+        username: baleUser.username
+      })
+      .select()
+      .single();
 
-        } catch (error) {
-            debugMsg(`❌ خطای جدی در initUser: ${error.message || error}`);
-        }
+    if(insertError){
+      alert("Insert Error: " + insertError.message);
+      return;
     }
+
+    game = newUser;
+
+  } else {
+    game = data;
+  }
+
+  document.getElementById("loading-screen").style.display = "none";
+  document.getElementById("home").classList.add("active");
+
+  alert("🎉 Game Loaded Successfully!");
+
+}
   
 async function createUser(){
 
@@ -976,7 +960,7 @@ let autoActiveUntil = 0;
 let comboValue = 0;
 let comboMax = 100;
 let comboTimeout;
-initUser();
+//initUser();
   
 // جلوگیری از NaN
 function fixNumbers(){
