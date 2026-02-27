@@ -903,7 +903,7 @@ setInterval(saveToDB, 5000);
 
 async function saveToDB(){
 
-  if(!baleUserId) return;
+  if(!baleUser) return;
 
   const { error } = await supabase
     .from("users")
@@ -918,7 +918,7 @@ async function saveToDB(){
     energy_level: game.energyLevel,
     recharge_level: game.rechargeLevel
   })
-    .eq("bale_id", baleUserId);
+    .eq("bale_id", baleUser);
 
   if(error){
   console.log("Save error:", error);
