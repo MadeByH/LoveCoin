@@ -385,7 +385,10 @@ body{
   padding:20px;
   border-radius:20px;
   text-align:center;
-}
+  width:85%;
+  max-width:420px;
+  box-sizing:border-box;
+  }
 
 .avatar{
   width:80px;
@@ -1069,6 +1072,7 @@ function updateUI(){
   
   updateShopLocks();
   updateThemeShopUI();
+  updateProfile();
   pendingSave = true;
 }
 
@@ -1088,8 +1092,16 @@ async function loadGlobalRank(){
   
 function updateProfile(){
 
+  const fullName =
+  (baleUser?.first_name || "") +
+  (baleUser?.last_name ? " " + baleUser.last_name : "");
+
+  const username = baleUser?.username
+  ? "(@" + baleUser.username + ")"
+  : "";
+
   document.getElementById("profileUsername").innerText =
-    baleUser?.username || "Player";
+  (fullName || "Player") + " " + username;
 
   document.getElementById("profileLevel").innerText = game.level;
   document.getElementById("profileCoins").innerText = formatNumber(game.coins);
@@ -1108,6 +1120,7 @@ function updateProfile(){
   }
 
   document.getElementById("profileRank").innerText = globalRank;
+  await loadGlobalRank();
     }
   
 
