@@ -616,7 +616,7 @@ body.neon{
     </div>
 
     <div class="xp-bar">
-      <div id="xpFill"></div>
+      <div id="profileXpFill"></div>
     </div>
   </div>
   <div class="setting-row">
@@ -760,6 +760,8 @@ const { createClient } = supabase;
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let baleUser = null;
+let profileCreatedAt = null;
+let globalRank = "-";
 
 
 // ✅ وقتی Bale آماده شد
@@ -856,6 +858,8 @@ async function initUser(){
   updateUI();
   applyTheme(game.currentTheme);
   renderThemeSelector();
+  profileCreatedAt = data?.created_at;
+  loadGlobalRank();
 }
   
 async function createUser(){
@@ -1058,51 +1062,45 @@ function updateUI(){
   
   updateShopLocks();
   updateThemeShopUI();
-  updateProfile();
 }
 
 
-async function updateProfile(){
+async function loadGlobalRank(){
+
+  const { data } = await supabaseClient
+    .from("users")
+    .select("bale_id")
+    .order("coins",{ascending:false});
+
+  if(data){
+    globalRank =
+      data.findIndex(u => u.bale_id == baleUser.id) + 1;
+  }
+}
+  
+function updateProfile(){
 
   document.getElementById("profileUsername").innerText =
     baleUser?.username || "Player";
 
   document.getElementById("profileLevel").innerText = game.level;
-  document.getElementById("profileCoins").innerText = game.coins;
+  document.getElementById("profileCoins").innerText = formatNumber(game.coins);
   document.getElementById("profileLoveCoins").innerText = game.loveCoins;
   document.getElementById("profileXP").innerText = game.xp;
   document.getElementById("profileXPNeed").innerText = game.xpNeed;
-  document.getElementById("profileTap").innerText = game.taplevel;
+  document.getElementById("profileTapLv").innerText = game.tapLevel;
 
   const percent = (game.xp / game.xpNeed) * 100;
-  document.getElementById("xpFill").style.width = percent + "%";
+  document.getElementById("profileXpFill").style.width = percent + "%";
 
-  // تاریخ عضویت
-  const { data } = await supabaseClient
-    .from("users")
-    .select("created_at")
-    .eq("bale_id", baleUser.id)
-    .single();
-
-  if(data){
-    const date = new Date(data.created_at);
+  if(profileCreatedAt){
+    const date = new Date(profileCreatedAt);
     document.getElementById("profileCreatedAt").innerText =
       date.toLocaleDateString();
   }
 
-  // رتبه جهانی
-  const { data:rankData } = await supabaseClient
-    .from("users")
-    .select("bale_id")
-    .order("coins",{ascending:false});
-
-  if(rankData){
-    const rank =
-      rankData.findIndex(u => u.bale_id == baleUser.id) + 1;
-
-    document.getElementById("profileRank").innerText = rank;
-  }
-}
+  document.getElementById("profileRank").innerText = globalRank;
+    }
   
 
 // ===== ENERGY REGEN SAFE =====
