@@ -798,69 +798,63 @@ async function initUser(){
     .single();
 
   if(error && error.code !== "PGRST116"){
-    //alert("DB Error: " + error.message);
+    alert("DB Error: " + error.message);
     return;
   }
 
+  let userData = data;
+
+  // اگر کاربر وجود نداشت → بساز
   if(!data){
-  const { data:newUser, error:insertError } = await supabaseClient
-    .from("users")
-    .insert({
-      bale_id: baleUser.id,
-      username: baleUser.username
-    })
-    .select()
-    .single();
+    const { data:newUser, error:insertError } = await supabaseClient
+      .from("users")
+      .insert({
+        bale_id: baleUser.id,
+        username: baleUser.username
+      })
+      .select()
+      .single();
 
-  if(insertError) return;
+    if(insertError){
+      alert("Insert Error: " + insertError.message);
+      return;
+    }
 
+    userData = newUser;
+  }
+
+  // لود دیتا داخل game
   game = {
     ...getDefaultGame(),
 
-    coins: newUser.coins ?? 0,
-    loveCoins: newUser.love_coins ?? 0,
-    level: newUser.level ?? 1,
-    xp: newUser.xp ?? 0,
-    energy: newUser.energy ?? 100,
+    coins: userData.coins ?? 0,
+    loveCoins: userData.love_coins ?? 0,
+    level: userData.level ?? 1,
+    xp: userData.xp ?? 0,
+    energy: userData.energy ?? 100,
 
-    tapLevel: newUser.tap_level ?? 1,
-    autoClickerLevel: newUser.auto_level ?? 0,
-    energyLevel: newUser.energy_level ?? 0,
-    rechargeLevel: newUser.recharge_level ?? 0,
+    tapLevel: userData.tap_level ?? 1,
+    autoClickerLevel: userData.auto_level ?? 0,
+    energyLevel: userData.energy_level ?? 0,
+    rechargeLevel: userData.recharge_level ?? 0,
   };
 
   game.xpNeed = Math.floor(50 * Math.pow(1.8, game.level - 1));
   game.rechargeSpeed = 1 + game.rechargeLevel * 0.1;
-  }
 
-  } else {
-    game = {
-  ...getDefaultGame(),
+  profileCreatedAt = userData.created_at;
 
-  coins: data.coins ?? 0,
-  loveCoins: data.love_coins ?? 0,
-  level: data.level ?? 1,
-  xp: data.xp ?? 0,
-  energy: data.energy ?? 100,
+  await loadGlobalRank();
 
-  tapLevel: data.tap_level ?? 1,
-  autoClickerLevel: data.auto_level ?? 0,
-  energyLevel: data.energy_level ?? 0,
-  rechargeLevel: data.recharge_level ?? 0,
-};
-
-    game.xpNeed = Math.floor(50 * Math.pow(1.8, game.level - 1));
-    game.rechargeSpeed = 1 + game.rechargeLevel * 0.1;
-  }
-
+  // 🔥 حالا UI رو نمایش بده
   document.getElementById("loading-screen").style.display = "none";
   document.getElementById("home").classList.add("active");
+
   updateUI();
+  updateProfile();
   applyTheme(game.currentTheme);
   renderThemeSelector();
-  profileCreatedAt = data?.created_at;
-  loadGlobalRank();
-}
+  }
   
 async function createUser(){
 
@@ -1057,8 +1051,8 @@ function updateUI(){
 
   document.getElementById("profileLevel").innerText = game.level;
   document.getElementById("profileCoins").innerText = formatNumber(game.coins);
-  document.getElementById("profileLove").innerText = game.loveCoins;
-  document.getElementById("profileTap").innerText = game.tapLevel;
+  document.getElementById("profileLoveCoins").innerText = game.loveCoins;
+  document.getElementById("profileTapLv").innerText = game.tapLevel;
   
   updateShopLocks();
   updateThemeShopUI();
