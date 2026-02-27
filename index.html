@@ -1167,7 +1167,7 @@ function addCoin(x,y){
 
   game.energy -= game.tapLevel;
 
-  game.coins += game.tapLevel * comboMultiplier;
+  game.coins += Math.floor(game.tapLevel * comboMultiplier);
   addXP(Math.floor(game.tapLevel * 0.2));
 
 // ✅ حالا کمبو افزایش پیدا کنه
