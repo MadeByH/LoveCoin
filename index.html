@@ -461,9 +461,28 @@ body{
 .leaderItem{
   display:flex;
   justify-content:space-between;
-  padding:10px 0;
-  border-bottom:1px solid #333;
-  }
+  align-items:center;
+  padding:14px 12px;
+  margin-bottom:8px;
+  border-radius:12px;
+  background:#1a1a1a;
+  font-weight:bold;
+  transition:0.2s;
+}
+
+.leaderItem:hover{
+  transform:scale(1.02);
+  box-shadow:0 0 15px rgba(255,215,0,0.4);
+}
+
+.leaderRank{
+  width:30px;
+  text-align:center;
+}
+
+.gold{ color:gold; }
+.silver{ color:#cfd3d6; }
+.bronze{ color:#cd7f32; }
   
 #xpFill{
   height:100%;
@@ -920,13 +939,20 @@ async function initUser(){
   // ===== ENERGY OFFLINE CALC AFTER DB LOAD =====
   let lastTime = parseInt(localStorage.getItem("lastEnergyTime"));
 
-  if(lastTime){
+  if(lastTime && !isNaN(lastTime)){
+
   let now = Date.now();
   let diff = Math.floor((now - lastTime) / 1000);
 
   game.maxEnergy = 100 + (game.energyLevel * 20);
-  game.energy = Math.min(game.maxEnergy, game.energy + diff * game.rechargeSpeed);
-}
+
+  let gained = diff * game.rechargeSpeed;
+
+  game.energy = Math.min(
+    game.maxEnergy,
+    game.energy + gained
+  );
+     }
   
   profileCreatedAt = userData.created_at;
 
@@ -938,6 +964,7 @@ async function initUser(){
 
   updateUI();
   updateProfile();
+  localStorage.setItem("lastEnergyTime", Date.now());
   applyTheme(game.currentTheme);
   renderThemeSelector();
   userLoaded = true;
