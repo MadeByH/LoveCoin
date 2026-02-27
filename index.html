@@ -917,6 +917,17 @@ async function initUser(){
   game.xpNeed = Math.floor(50 * Math.pow(1.8, game.level - 1));
   game.rechargeSpeed = 1 + game.rechargeLevel * 0.1;
 
+  // ===== ENERGY OFFLINE CALC AFTER DB LOAD =====
+  let lastTime = parseInt(localStorage.getItem("lastEnergyTime"));
+
+  if(lastTime){
+  let now = Date.now();
+  let diff = Math.floor((now - lastTime) / 1000);
+
+  game.maxEnergy = 100 + (game.energyLevel * 20);
+  game.energy = Math.min(game.maxEnergy, game.energy + diff * game.rechargeSpeed);
+}
+  
   profileCreatedAt = userData.created_at;
 
   await loadGlobalRank();
@@ -1025,8 +1036,9 @@ function getDefaultGame(){
   };
 }
 
-let savedGame = JSON.parse(localStorage.getItem("loveCoinGame"));
-let game = savedGame ? {...getDefaultGame(), ...savedGame} : getDefaultGame();
+//let savedGame = JSON.parse(localStorage.getItem("loveCoinGame"));
+//let game = savedGame ? {...getDefaultGame(), ...savedGame} : getDefaultGame();
+let game = getDefaultGame();
 let lastClickTime = 0;
 let comboMultiplier = 1;
 let autoActiveUntil = 0;
@@ -1191,17 +1203,7 @@ function updateProfile(){
 
   document.getElementById("profileRank").innerText = globalRank;
     }
-  
 
-// ===== ENERGY REGEN SAFE =====
-let lastTime = parseInt(localStorage.getItem("lastEnergyTime")) || Date.now();
-let now = Date.now();
-let diff = Math.floor((now - lastTime) / 1000);
-
-game.maxEnergy = 100 + (game.energyLevel * 20);
-game.energy = Math.min(game.maxEnergy, game.energy + diff);
-
-localStorage.setItem("lastEnergyTime", now);
 
 setInterval(()=>{
   if(game.energy < game.maxEnergy){
@@ -1799,10 +1801,10 @@ function claimDaily(){
   
   
 // ===== SAVE SAFE =====
-setInterval(()=>{
-  fixNumbers();
-  localStorage.setItem("loveCoinGame", JSON.stringify(game));
-},3000);
+//setInterval(()=>{
+//  fixNumbers();
+//  localStorage.setItem("loveCoinGame", JSON.stringify(game));
+//},3000);
 
 window.addEventListener("beforeunload", () => {
   localStorage.setItem("lastEnergyTime", Date.now());
