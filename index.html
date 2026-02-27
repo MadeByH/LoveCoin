@@ -776,7 +776,9 @@ backdrop-filter: blur(6px);
 const SUPABASE_URL = "https://tdgcjbxntesdegjevghe.supabase.co";
 const SUPABASE_KEY = "sb_publishable_yaxFo7qO5wfWk4tmlFT-CA_YybfbSUS";
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+alert("SCRIPT START");
+const { createClient } = supabase;
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let baleUser = null;
 
@@ -808,7 +810,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 // ===== INIT USER FROM DB =====
 async function initUser(){
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseClient
     .from("users")
     .select("*")
     .eq("bale_id", baleUser.id)
@@ -821,7 +823,7 @@ async function initUser(){
 
   if(!data){
     // کاربر جدید
-    const { data:newUser, error:insertError } = await supabase
+    const { data:newUser, error:insertError } = await supabaseClient
       .from("users")
       .insert({
         bale_id: baleUser.id,
@@ -850,7 +852,7 @@ async function initUser(){
   
 async function createUser(){
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseClient
     .from("users")
     .insert([
       {
@@ -891,7 +893,7 @@ async function saveToDB(){
 
   if(!baleUser) return;
 
-  const { error } = await supabase
+  const { error } = await supabaseClient
     .from("users")
     .update({
     coins: game.coins,
