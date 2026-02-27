@@ -381,51 +381,39 @@ body{
 }
   
 .profile-card{
-  width:90%;
-  background:#1a1a1a;
-  border-radius:18px;
+  background:#111827;
   padding:20px;
-  box-shadow:0 0 20px rgba(255,105,180,0.3);
-  margin-top:20px;
-}
-
-.profile-top{
-  display:flex;
-  align-items:center;
-  gap:15px;
-}
-
-.profile-avatar{
-  width:80px;
-  height:80px;
-  border-radius:50%;
-  background:linear-gradient(45deg,#ff4da6,#ff0080);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  font-size:32px;
-  color:white;
-}
-
-.profile-stats{
-  display:flex;
-  justify-content:space-around;
-  margin-top:20px;
+  border-radius:20px;
   text-align:center;
 }
 
-.profile-stats div span{
-  display:block;
-  font-size:12px;
-  color:#aaa;
+.avatar{
+  width:80px;
+  height:80px;
+  border-radius:50%;
+  background:#ff4da6;
+  margin:0 auto 10px;
 }
 
-#profile .profile-card{
-  margin-bottom:25px;
+.profile-stats{
+  margin-top:15px;
+  text-align:left;
+  font-size:14px;
 }
-#profile{
-  gap:15px;
+
+.xp-bar{
+  height:8px;
+  background:#333;
+  border-radius:10px;
+  margin-top:10px;
+  overflow:hidden;
 }
+
+#xpFill{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#ff4da6,#ff80bf);
+  }
   
 .theme-select-item{
   background:#222;
@@ -613,30 +601,22 @@ body.neon{
 <div id="profile" class="page">
   <h2>Profile</h2>
   <div class="profile-card">
-    <div class="profile-top">
-      <div class="profile-avatar">
-        <i class="fa-solid fa-user"></i>
-      </div>
-      <div class="profile-info">
-        <h3 id="profileName">Player</h3>
-        <p>ID: <span id="profileId">0001</span></p>
-        <p>Level: <span id="profileLevel">1</span></p>
-      </div>
-    </div>
+    <div class="avatar" id="profileAvatar"></div>
+
+    <h2 id="profileUsername">Username</h2>
 
     <div class="profile-stats">
-      <div>
-        <strong id="profileCoins">0</strong>
-        <span>Coins</span>
-      </div>
-      <div>
-        <strong id="profileLove">0</strong>
-        <span>Love</span>
-      </div>
-      <div>
-        <strong id="profileTap">1</strong>
-        <span>Tap Lv</span>
-      </div>
+      <div>Level: <span id="profileLevel">1</span></div>
+      <div>Coins: <span id="profileCoins">0</span></div>
+      <div>Love Coins: <span id="profileLoveCoins">0</span></div>
+      <div>XP: <span id="profileXP">0</span> / <span id="profileXPNeed">0</span></div>
+      <div>Tap Lv: <span id="profileTapLv">1</span></div>
+      <div>Member Since: <span id="profileCreatedAt">-</span></div>
+      <div>Global Rank: <span id="profileRank">-</span></div>
+    </div>
+
+    <div class="xp-bar">
+      <div id="xpFill"></div>
     </div>
   </div>
   <div class="setting-row">
@@ -1078,8 +1058,52 @@ function updateUI(){
   
   updateShopLocks();
   updateThemeShopUI();
+  updateProfile();
 }
 
+
+async function updateProfile(){
+
+  document.getElementById("profileUsername").innerText =
+    baleUser?.username || "Player";
+
+  document.getElementById("profileLevel").innerText = game.level;
+  document.getElementById("profileCoins").innerText = game.coins;
+  document.getElementById("profileLoveCoins").innerText = game.loveCoins;
+  document.getElementById("profileXP").innerText = game.xp;
+  document.getElementById("profileXPNeed").innerText = game.xpNeed;
+  document.getElementById("profileTap").innerText = game.taplevel;
+
+  const percent = (game.xp / game.xpNeed) * 100;
+  document.getElementById("xpFill").style.width = percent + "%";
+
+  // تاریخ عضویت
+  const { data } = await supabaseClient
+    .from("users")
+    .select("created_at")
+    .eq("bale_id", baleUser.id)
+    .single();
+
+  if(data){
+    const date = new Date(data.created_at);
+    document.getElementById("profileCreatedAt").innerText =
+      date.toLocaleDateString();
+  }
+
+  // رتبه جهانی
+  const { data:rankData } = await supabaseClient
+    .from("users")
+    .select("bale_id")
+    .order("coins",{ascending:false});
+
+  if(rankData){
+    const rank =
+      rankData.findIndex(u => u.bale_id == baleUser.id) + 1;
+
+    document.getElementById("profileRank").innerText = rank;
+  }
+}
+  
 
 // ===== ENERGY REGEN SAFE =====
 let lastTime = parseInt(localStorage.getItem("lastEnergyTime")) || Date.now();
