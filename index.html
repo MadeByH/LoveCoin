@@ -1468,7 +1468,7 @@ function updateRow(type, levelId, costId, needId){
 
   if(game.level < need){
     row.classList.add("locked");
-    btn.innerText = "🔒";
+    btn.innerHTML = '<i class="fa-solid fa-lock"></i>';
     btn.disabled = true;
   }
   else if(game.coins < cost){
