@@ -435,7 +435,9 @@ body{
   height:75%;
   background:#111;
   border-radius:25px 25px 0 0;
-  padding:20px;
+  padding:20px 16px;
+  display:flex;
+  flex-direction:column;
   transition:0.4s;
   z-index:9999;
   overflow-y:auto;
@@ -468,6 +470,8 @@ body{
   background:#1a1a1a;
   font-weight:bold;
   transition:0.2s;
+  width:100%;
+  box-sizing:border-box;
 }
 
 .leaderItem:hover{
@@ -964,7 +968,6 @@ async function initUser(){
 
   updateUI();
   updateProfile();
-  localStorage.setItem("lastEnergyTime", Date.now());
   applyTheme(game.currentTheme);
   renderThemeSelector();
   userLoaded = true;
@@ -1179,6 +1182,10 @@ function updateUI(){
   document.getElementById("profileLoveCoins").innerText = game.loveCoins;
   document.getElementById("profileTapLv").innerText = game.tapLevel;
   
+  if(Math.floor(game.coins) % 500 === 0){
+  loadGlobalRank();
+}
+  
   updateShopLocks();
   updateThemeShopUI();
   updateProfile();
@@ -1237,6 +1244,7 @@ setInterval(()=>{
     game.energy += game.rechargeSpeed;
     updateUI();
   }
+  localStorage.setItem("lastEnergyTime", Date.now());
 },1000);
 
 
