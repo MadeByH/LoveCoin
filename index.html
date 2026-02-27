@@ -1151,10 +1151,10 @@ function addCoin(x,y){
   if(diffClick < 3.9){
   comboMultiplier = 2;
 }
-  else if(diffClick < 4.2){
+  else if(diffClick < 4.3){
   comboMultiplier = 1.5;
 }
-  else if(diffClick < 4.7){
+  else if(diffClick < 4.8){
   comboMultiplier = 1.2;
 }
   else{
@@ -1168,7 +1168,7 @@ function addCoin(x,y){
   game.energy -= game.tapLevel;
 
   game.coins += game.tapLevel * comboMultiplier;
-  addXP(game.tapLevel * 0.2);
+  addXP(Math.floor(game.tapLevel * 0.2));
 
 // ✅ حالا کمبو افزایش پیدا کنه
   comboValue += 15;
