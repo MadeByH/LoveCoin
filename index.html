@@ -1131,7 +1131,7 @@ let diff = Math.floor((now - lastTime) / 1000);
 game.maxEnergy = 100 + (game.energyLevel * 20);
 game.energy = Math.min(game.maxEnergy, game.energy + diff);
 
-localStorage.setItem("lastEnergyTime", Date.now());
+localStorage.setItem("lastEnergyTime", now);
 
 setInterval(()=>{
   if(game.energy < game.maxEnergy){
@@ -1698,9 +1698,12 @@ function claimDaily(){
 setInterval(()=>{
   fixNumbers();
   localStorage.setItem("loveCoinGame", JSON.stringify(game));
-  localStorage.setItem("lastEnergyTime", Date.now());
 },3000);
 
+window.addEventListener("beforeunload", () => {
+  localStorage.setItem("lastEnergyTime", Date.now());
+});
+  
 </script>
 </body>
 </html>
