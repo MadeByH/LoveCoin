@@ -782,34 +782,27 @@ let baleUser = null;
 
 
 // ✅ وقتی Bale آماده شد
-if (window.Bale && Bale.WebApp) {
+document.addEventListener("DOMContentLoaded", async () => {
 
-  Bale.WebApp.onReady(async () => {
+  if (!window.Bale || !window.Bale.WebApp) {
+    alert("❌ Bale SDK not loaded");
+    return;
+  }
 
-    try {
+  Bale.WebApp.ready();
 
-      Bale.WebApp.ready();
+  baleUser = Bale.WebApp.initDataUnsafe?.user;
 
-      baleUser = Bale.WebApp.initDataUnsafe?.user;
+  if (!baleUser) {
+    alert("❌ No Bale user detected");
+    return;
+  }
 
-      if(!baleUser){
-        alert("❌ No Bale user detected");
-        return;
-      }
+  alert("✅ Welcome " + (baleUser.username || "User"));
 
-      alert("✅ Welcome " + (baleUser.username || "User"));
+  await initUser();
 
-      await initUser();
-
-    } catch(err){
-      alert("Init Error: " + err.message);
-    }
-
-  });
-
-} else {
-  alert("❌ Bale SDK not loaded");
-}
+});
 
 
 // ===== INIT USER FROM DB =====
