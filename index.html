@@ -780,13 +780,6 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let baleUser = null;
 
-// ⛔ اگر بیشتر از 10 ثانیه لودینگ موند، خطا بده
-setTimeout(()=>{
-  if(!game){
-    alert("❌ MiniApp Init Timeout");
-  }
-},10000);
-
 
 // ✅ وقتی Bale آماده شد
 if (window.Bale && Bale.WebApp) {
@@ -868,7 +861,7 @@ async function createUser(){
     .from("users")
     .insert([
       {
-        bale_id: baleUserId,
+        bale_id: baleUser.id,
         coins: 0,
         love_coins: 0
       }
@@ -918,7 +911,7 @@ async function saveToDB(){
     energy_level: game.energyLevel,
     recharge_level: game.rechargeLevel
   })
-    .eq("bale_id", baleUser);
+    .eq("bale_id", baleUser.id);
 
   if(error){
   console.log("Save error:", error);
