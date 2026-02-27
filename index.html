@@ -1597,7 +1597,7 @@ async function openLeaderboard(){
 
   const { data } = await supabaseClient
     .from("users")
-    .select("username, coins")
+    .select("username, coins, level")
     .order("coins", {ascending:false})
     .limit(50);
 
@@ -1621,7 +1621,12 @@ async function openLeaderboard(){
     <div class="leaderRank ${medalClass}">
       ${medal <= 3 ? "🏆" : medal}
     </div>
-    <div>${user.username || "Player"}</div>
+    <div style="flex:1; text-align:left;">
+      ${user.username || "Player"}
+      <div style="font-size:12px; color:#888;">
+        Level ${user.level || 1}
+      </div>
+    </div>
     <div>${formatNumber(user.coins)}</div>
   `;
 
