@@ -1140,13 +1140,19 @@ setInterval(()=>{
 
 // ===== ADD XP SAFE =====
 function addXP(amount){
-  game.xp += amount;
+
+  game.xp += Math.floor(amount);
 
   while(game.xp >= game.xpNeed){
+
     game.xp -= game.xpNeed;
     game.level++;
-    game.xpNeed = Math.floor(game.xpNeed * 1.8);
+
+    // هر بار از اول محاسبه کن
+    game.xpNeed = Math.floor(50 * Math.pow(1.8, game.level - 1));
+
     game.coins += game.level * 10;
+
     showLevelUp();
   }
 }
@@ -1179,7 +1185,12 @@ function addCoin(x,y){
   game.energy -= game.tapLevel;
 
   game.coins += Math.floor(game.tapLevel * comboMultiplier);
-  addXP(Math.floor(game.tapLevel * 0.2));
+  
+  const randomChance = Math.random();
+  const winChance = 1 / 5;
+  if (randomChance < winChance) {
+  addXP(Math.floor(game.tapLevel * lastClickTime));
+  }
 
 // ✅ حالا کمبو افزایش پیدا کنه
   comboValue += 15;
