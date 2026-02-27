@@ -763,6 +763,7 @@ let baleUser = null;
 let profileCreatedAt = null;
 let globalRank = "-";
 let userLoaded = false;
+let pendingSave = false;
 
 
 // ✅ وقتی Bale آماده شد
@@ -782,7 +783,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  alert("✅ Welcome " + (baleUser.username || "User"));
+  //alert("✅ Welcome " + (baleUser.username || "User"));
 
   await initUser();
 
@@ -799,7 +800,7 @@ async function initUser(){
     .single();
 
   if(error && error.code !== "PGRST116"){
-    alert("DB Error: " + error.message);
+    //alert("DB Error: " + error.message);
     return;
   }
 
@@ -817,7 +818,7 @@ async function initUser(){
       .single();
 
     if(insertError){
-      alert("Insert Error: " + insertError.message);
+      //alert("Insert Error: " + insertError.message);
       return;
     }
 
@@ -894,30 +895,39 @@ function loadGameFromDB(data){
   localStorage.setItem("loveCoinGame", JSON.stringify(game));
 }
 
-setInterval(saveToDB, 5000);
+setInterval(saveToDB, 15000);
 
 async function saveToDB(){
 
   if(!baleUser) return;
-  if(!userLoaded) return;   // 🔥 این خط مهمه
+  if(!userLoaded) return;
+  if(!pendingSave) return; // فقط وقتی تغییر داشت
 
-  const { error } = await supabaseClient
-    .from("users")
-    .update({
-      coins: game.coins,
-      love_coins: game.loveCoins,
-      level: game.level,
-      xp: game.xp,
-      energy: game.energy,
-      tap_level: game.tapLevel,
-      auto_level: game.autoClickerLevel,
-      energy_level: game.energyLevel,
-      recharge_level: game.rechargeLevel
-    })
-    .eq("bale_id", baleUser.id);
+  pendingSave = false;
 
-  if(error){
-    alert("Save error: " + error.message + " | Code: " + error.code);
+  try{
+    const { error } = await supabaseClient
+      .from("users")
+      .update({
+        coins: Math.floor(game.coins),
+        love_coins: Math.floor(game.loveCoins),
+        level: Math.floor(game.level),
+        xp: Math.floor(game.xp),
+        energy: Math.floor(game.energy),
+        tap_level: Math.floor(game.tapLevel),
+        auto_level: Math.floor(game.autoClickerLevel),
+        energy_level: Math.floor(game.energyLevel),
+        recharge_level: Math.floor(game.rechargeLevel)
+      })
+      .eq("bale_id", String(baleUser.id));
+
+    if(error){
+      console.log("Save error:", error);
+      //alert("Save error: " + error.message + " | Code: " + error.code);
+    }
+
+  } catch(err){
+    console.log("Network error:", err);
   }
 }
   
@@ -1059,6 +1069,7 @@ function updateUI(){
   
   updateShopLocks();
   updateThemeShopUI();
+  pendingSave = true;
 }
 
 
