@@ -900,8 +900,6 @@ function loadGameFromDB(data){
 }
 
 alert("1✅ فایل JS وصل است و اجرا شد!");
-debugMsg("🔍 تست اولیه — فایل JS در حال کار است");
-
 setInterval(saveToDB, 5000);
 
 async function saveToDB(){
@@ -950,7 +948,6 @@ function getDefaultGame(){
 }
 
 alert("2✅ فایل JS وصل است و اجرا شد!");
-debugMsg("🔍 تست اولیه — فایل JS در حال کار است");
 
 let savedGame = JSON.parse(localStorage.getItem("loveCoinGame"));
 let game = savedGame ? {...getDefaultGame(), ...savedGame} : getDefaultGame();
@@ -973,7 +970,6 @@ function fixNumbers(){
 fixNumbers();
 
 alert("3✅ فایل JS وصل است و اجرا شد!");
-debugMsg("🔍 تست اولیه — فایل JS در حال کار است");
 
 
 // ===== SETTINGS SYSTEM =====
