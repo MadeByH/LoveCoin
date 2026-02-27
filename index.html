@@ -1596,14 +1596,27 @@ async function openLeaderboard(){
 
   if(data){
     data.forEach((user, index)=>{
-      const row = document.createElement("div");
-      row.className = "leaderItem";
-      row.innerHTML = `
-        <span>${index+1}. ${user.username || "Player"}</span>
-        <span>${formatNumber(user.coins)}</span>
-      `;
-      list.appendChild(row);
-    });
+
+  let medalClass = "";
+  let medal = index + 1;
+
+  if(index === 0) medalClass = "gold";
+  if(index === 1) medalClass = "silver";
+  if(index === 2) medalClass = "bronze";
+
+  const row = document.createElement("div");
+  row.className = "leaderItem";
+
+  row.innerHTML = `
+    <div class="leaderRank ${medalClass}">
+      ${medal <= 3 ? "🏆" : medal}
+    </div>
+    <div>${user.username || "Player"}</div>
+    <div>${formatNumber(user.coins)}</div>
+  `;
+
+  list.appendChild(row);
+});
   }
 
   document.getElementById("leaderOverlay").classList.add("active");
