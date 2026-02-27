@@ -821,22 +821,35 @@ async function initUser(){
   }
 
   if(!data){
-    // کاربر جدید
-    const { data:newUser, error:insertError } = await supabaseClient
-      .from("users")
-      .insert({
-        bale_id: baleUser.id,
-        username: baleUser.username
-      })
-      .select()
-      .single();
+  const { data:newUser, error:insertError } = await supabaseClient
+    .from("users")
+    .insert({
+      bale_id: baleUser.id,
+      username: baleUser.username
+    })
+    .select()
+    .single();
 
-    if(insertError){
-      //alert("Insert Error: " + insertError.message);
-      return;
-    }
+  if(insertError) return;
 
-    game = newUser;
+  game = {
+    ...getDefaultGame(),
+
+    coins: newUser.coins ?? 0,
+    loveCoins: newUser.love_coins ?? 0,
+    level: newUser.level ?? 1,
+    xp: newUser.xp ?? 0,
+    energy: newUser.energy ?? 100,
+
+    tapLevel: newUser.tap_level ?? 1,
+    autoClickerLevel: newUser.auto_level ?? 0,
+    energyLevel: newUser.energy_level ?? 0,
+    rechargeLevel: newUser.recharge_level ?? 0,
+  };
+
+  game.xpNeed = Math.floor(50 * Math.pow(1.8, game.level - 1));
+  game.rechargeSpeed = 1 + game.rechargeLevel * 0.1;
+  }
 
   } else {
     game = {
@@ -861,6 +874,8 @@ async function initUser(){
   document.getElementById("loading-screen").style.display = "none";
   document.getElementById("home").classList.add("active");
   updateUI();
+  applyTheme(game.currentTheme);
+  renderThemeSelector();
 }
   
 async function createUser(){
