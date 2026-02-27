@@ -917,7 +917,7 @@ async function saveToDB(){
     .eq("bale_id", baleUser.id);
 
   if(error){
-    alert("Save error: " + error);
+    alert("Save error: " + error.message + " | Code: " + error.code);
   }
 }
   
