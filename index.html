@@ -1189,7 +1189,7 @@ function addCoin(x,y){
   const randomChance = Math.random();
   const winChance = 1 / 5;
   if (randomChance < winChance) {
-  addXP(Math.floor(game.tapLevel * lastClickTime));
+  addXP(Math.floor(game.tapLevel * comboMultiplier));
   }
 
 // ✅ حالا کمبو افزایش پیدا کنه
