@@ -832,7 +832,7 @@ async function initUser(){
       .single();
 
     if(insertError){
-      alert("Insert Error: " + insertError.message);
+      //alert("Insert Error: " + insertError.message);
       return;
     }
 
@@ -1615,7 +1615,7 @@ function claimDaily(){
   let now = Date.now();
 
   if(!lastClaim || now - lastClaim > 86400000){
-    let reward = 500 + (game.level * 50);
+    let reward = 100 + (game.level * 50);
     game.coins += reward;
     localStorage.setItem("dailyRewardTime", now);
     showCustomAlert("🎁 You received " + reward + " coins!");
