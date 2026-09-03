@@ -402,6 +402,13 @@ body{
   border-radius:50%;
   background:#ff4da6;
   margin:0 auto 10px;
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 
 .profile-stats{
@@ -966,6 +973,24 @@ async function initUser(){
   
   profileCreatedAt = userData.created_at;
 
+  // ===== SYNC BALE USER INFO =====
+  const currentUsername = baleUser?.username || null;
+
+  if(currentUsername !== userData.username){
+    const { error: syncError } = await supabaseClient
+      .from("users")
+      .update({
+        username: currentUsername
+      })
+      .eq("bale_id", String(baleUser.id));
+
+    if(syncError){
+      console.log("Username sync error:", syncError);
+    }else{
+      userData.username = currentUsername;
+    }
+  }
+
   await loadGlobalRank();
 
   // 🔥 حالا UI رو نمایش بده
@@ -1225,6 +1250,25 @@ function updateProfile(){
   document.getElementById("profileUsername").innerText =
   (fullName || "Player") + " " + username;
 
+  const avatar = document.getElementById("profileAvatar");
+
+  const photoUrl = baleUser?.photo_url;
+
+  if(photoUrl){
+    avatar.style.backgroundImage = `url("${photoUrl}")`;
+    avatar.innerText = "";
+  }else{
+    avatar.style.backgroundImage = "none";
+
+    const firstLetter =
+      (baleUser?.first_name || "P").charAt(0).toUpperCase();
+
+    avatar.innerText = firstLetter;
+    avatar.style.fontSize = "32px";
+    avatar.style.fontWeight = "bold";
+    avatar.style.color = "white";
+  }
+
   document.getElementById("profileLevel").innerText = game.level;
   document.getElementById("profileCoins").innerText = formatNumber(game.coins);
   document.getElementById("profileLoveCoins").innerText = game.loveCoins;
@@ -1369,7 +1413,7 @@ function addCoin(x,y){
 
   // Navigator
   if (settings.vibration === true && navigator.vibrate) {
-    navigator.vibrate(60); // مقدار 60 میلی‌ثانیه
+    navigator.vibrate(50); // مقدار 50 میلی‌ثانیه
   }
 
   // ClickSound
