@@ -1138,8 +1138,8 @@ backdrop-filter: blur(6px);
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-<script>eruda.init();</script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+<script>eruda.init();</script> -->
   
 <script>
 const SUPABASE_URL = "https://tdgcjbxntesdegjevghe.supabase.co";
@@ -1625,20 +1625,55 @@ function addCoin(x,y){
   let nowClick = Date.now();
   let diffClick = nowClick - lastClickTime;
 
-  if(diffClick < 390){
-  comboMultiplier = 2;
-}
-  else if(diffClick < 430){
-  comboMultiplier = 1.5;
-}
-  else if(diffClick < 480){
-  comboMultiplier = 1.2;
-}
-  else{
-  comboMultiplier = 1;
-}
-
   lastClickTime = nowClick;
+
+  // ======================================
+  // COMBO SPEED
+  // فقط کلیک‌های خیلی سریع Combo می‌سازند
+  // ======================================
+
+  if(diffClick > 0 && diffClick <= 250){
+    comboValue += 20;
+  }
+  else if(diffClick <= 320){
+    comboValue += 12;
+  }
+  else if(diffClick <= 400){
+    comboValue += 5;
+  }
+  else{
+    // کلیک معمولی → Combo نمی‌گیرد
+    comboValue = Math.max(0, comboValue - 5);
+  }
+
+  // محدود کردن Combo
+  if(comboValue > comboMax){
+    comboValue = comboMax;
+  }
+
+  // ======================================
+  // COMBO MULTIPLIER
+  // تا وقتی Combo کامل نشده، ضریب نداریم
+  // ======================================
+
+  comboMultiplier = 1;
+
+  if(comboValue >= comboMax){
+    comboMultiplier = 2;
+  }
+
+  // اگر Combo کامل شده، تایمرش تمدید شود
+  clearTimeout(comboTimeout);
+
+  if(comboValue > 0){
+    comboTimeout = setTimeout(()=>{
+      comboValue = 0;
+      comboMultiplier = 1;
+      updateComboUI();
+    }, 1200);
+  }
+
+  updateComboUI();
   
   if(game.energy < game.tapLevel) return;
 
@@ -1697,9 +1732,11 @@ function addCoin(x,y){
 
   plus.innerText = "+" + Math.floor(game.tapLevel * comboMultiplier);
 
-  if(comboMultiplier > 1){
-  plus.style.color = "#00f0ff";
-}
+  if(comboMultiplier > 1 && comboValue >= comboMax){
+    plus.style.color = "#00f0ff";
+  }else{
+    plus.style.color = "gold";
+  }
 }
 
   // Navigator
