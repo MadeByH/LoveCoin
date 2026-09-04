@@ -2211,6 +2211,188 @@ function updateTransferInfo(){
     `;
   }
 }
+
+// ===== EXECUTE TRANSFER =====
+async function executeTransfer(){
+
+  if(!baleUser){
+    showCustomAlert("❌ User not found!");
+    return;
+  }
+
+  const receiver =
+    document.getElementById("transferReceiver").value.trim();
+
+  const currency =
+    document.getElementById("transferCurrency").value;
+
+  const amount =
+    Number(document.getElementById("transferAmount").value);
+
+  // ===== VALIDATION =====
+
+  if(!receiver){
+    showCustomAlert("❌ Receiver Bale ID را وارد کنید");
+    return;
+  }
+
+  if(!/^\d+$/.test(receiver)){
+    showCustomAlert("❌ Bale ID باید عددی باشد");
+    return;
+  }
+
+  if(!amount || amount <= 0 || !Number.isInteger(amount)){
+    showCustomAlert("❌ مقدار انتقال نامعتبر است");
+    return;
+  }
+
+  // حداقل Coins
+  if(currency === "coins" && amount < MIN_TRANSFER_COINS){
+    showCustomAlert(
+      "❌ حداقل انتقال Coins برابر " +
+      formatNumber(MIN_TRANSFER_COINS) +
+      " است"
+    );
+    return;
+  }
+
+  // حداقل Love Coin
+  if(currency === "love" && amount < 1){
+    showCustomAlert("❌ حداقل انتقال Love Coin برابر 1 است");
+    return;
+  }
+
+  // جلوگیری از انتقال به خود
+  if(String(receiver) === String(baleUser.id)){
+    showCustomAlert("❌ امکان انتقال به خودتان وجود ندارد");
+    return;
+  }
+
+  // ===== RPC CURRENCY MAP =====
+  const rpcCurrency =
+    currency === "coins"
+      ? "coins"
+      : "love_coins";
+
+  // ===== CONFIRM =====
+
+  let message = "";
+
+  if(currency === "coins"){
+
+    const fee = Math.ceil(
+      amount * TRANSFER_FEE_PERCENT
+    );
+
+    const received = amount - fee;
+
+    message =
+      "💸 Transfer Coins\n\n" +
+      "Amount: " + formatNumber(amount) + "\n" +
+      "Fee: " + formatNumber(fee) + "\n" +
+      "Receiver gets: " + formatNumber(received);
+
+  }else{
+
+    const feeCoins = Math.ceil(
+      amount *
+      LOVE_COIN_PRICE *
+      TRANSFER_FEE_PERCENT
+    );
+
+    message =
+      "💖 Transfer Love Coins\n\n" +
+      "Amount: " + formatNumber(amount) + "\n" +
+      "Fee: " + formatNumber(feeCoins) + " Coins";
+  }
+
+  // فعلاً بدون confirm مرور می‌کنیم
+  // تا با سیستم Alert فعلی تداخل نداشته باشد.
+
+  try{
+
+    const { data, error } =
+      await supabaseClient.rpc(
+        "transfer_currency",
+        {
+          p_sender_bale_id: String(baleUser.id),
+          p_receiver_bale_id: receiver,
+          p_currency: rpcCurrency,
+          p_amount: amount
+        }
+      );
+
+    if(error){
+
+      console.log("Transfer RPC error:", error);
+
+      showCustomAlert(
+        "❌ انتقال انجام نشد\n\n" +
+        (error.message || "Unknown error")
+      );
+
+      return;
+    }
+
+    if(!data || data.success !== true){
+
+      showCustomAlert(
+        "❌ انتقال انجام نشد"
+      );
+
+      return;
+    }
+
+    // ===== SYNC LOCAL GAME =====
+
+    if(data.currency === "coins"){
+
+      game.coins -= Number(data.amount);
+
+      showCustomAlert(
+        "✅ انتقال با موفقیت انجام شد!\n\n" +
+        "ارسال: " +
+        formatNumber(data.amount) +
+        " Coins\n" +
+        "کارمزد: " +
+        formatNumber(data.fee) +
+        " Coins\n" +
+        "دریافت گیرنده: " +
+        formatNumber(data.received) +
+        " Coins"
+      );
+
+    }else{
+
+      game.loveCoins -= Number(data.amount);
+
+      game.coins -= Number(data.fee_coins);
+
+      showCustomAlert(
+        "✅ انتقال با موفقیت انجام شد!\n\n" +
+        "ارسال: " +
+        formatNumber(data.amount) +
+        " Love Coins\n" +
+        "کارمزد: " +
+        formatNumber(data.fee_coins) +
+        " Coins"
+      );
+    }
+
+    updateUI();
+
+    closeTransfer();
+
+  }catch(err){
+
+    console.log("Transfer error:", err);
+
+    showCustomAlert(
+      "❌ خطا در انتقال\n\n" +
+      (err.message || "Network error")
+    );
+  }
+}
   
   
 // ===== SAVE SAFE =====
