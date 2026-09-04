@@ -425,6 +425,40 @@ body{
   overflow:hidden;
 }
 
+#transferOverlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  opacity:0;
+  pointer-events:none;
+  transition:0.3s;
+  z-index:9998;
+}
+
+#transferOverlay.active{
+  opacity:1;
+  pointer-events:auto;
+}
+
+#transferSheet{
+  position:fixed;
+  bottom:-100%;
+  left:50%;
+  width:90%;
+  max-width:400px;
+  transform:translateX(-50%);
+  background:#111;
+  border-radius:25px 25px 0 0;
+  padding:20px 16px;
+  box-sizing:border-box;
+  transition:0.4s;
+  z-index:9999;
+}
+
+#transferSheet.active{
+  bottom:0;
+}
+  
 #leaderOverlay{
   position:fixed;
   inset:0;
@@ -702,6 +736,31 @@ body.neon{
       <div>Tap Lv: <span id="profileTapLv">1</span></div>
       <div>Member Since: <span id="profileCreatedAt">-</span></div>
       <div>Global Rank: <span id="profileRank">-</span></div>
+      <div style="
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+">
+        <span>
+    Bale ID:
+          <span id="profileBaleId">-</span>
+        </span>
+
+        <button
+    onclick="copyBaleId()"
+    style="
+      background:#222;
+      color:white;
+      border:1px solid #555;
+      padding:6px 10px;
+      border-radius:8px;
+      cursor:pointer;
+    "
+  >
+          <i class="fa-solid fa-copy"></i>
+        </button>
+      </div>
     </div>
 
     <div class="xp-bar">
@@ -718,6 +777,16 @@ body.neon{
       <button onclick="convertLove(5)">5x</button>
       <button onclick="convertLove('max')">MAX</button>
     </div>
+  </div>
+  <div class="setting-row">
+    <span>
+      <b>💸 Transfer</b><br>
+      Send Coins or Love Coins
+    </span>
+
+    <button onclick="openTransfer()">
+      Transfer
+    </button>
   </div>
   <div class="setting-row">
     <span>
@@ -822,6 +891,142 @@ backdrop-filter: blur(6px);
   <img src="icons/lovecoin.png" class="loveBigCoin">
 </div>
 
+<!-- ===== TRANSFER ===== -->
+
+<div id="transferOverlay" onclick="closeTransfer()"></div>
+
+<div id="transferSheet">
+
+  <div class="leaderHeader">
+    <span>💸 Transfer</span>
+
+    <button onclick="closeTransfer()">×</button>
+  </div>
+
+  <div style="margin-bottom:15px;">
+
+    <div style="
+      color:#aaa;
+      font-size:13px;
+      margin-bottom:6px;
+    ">
+      Currency
+    </div>
+
+    <select
+      id="transferCurrency"
+      onchange="updateTransferInfo()"
+      style="
+        width:100%;
+        padding:12px;
+        border-radius:10px;
+        background:#222;
+        color:white;
+        border:1px solid #444;
+        font-size:15px;
+      "
+    >
+      <option value="coins">Coins</option>
+      <option value="love">Love Coins</option>
+    </select>
+
+  </div>
+
+  <div style="margin-bottom:15px;">
+
+    <div style="
+      color:#aaa;
+      font-size:13px;
+      margin-bottom:6px;
+    ">
+      Receiver Bale ID
+    </div>
+
+    <input
+      id="transferReceiver"
+      type="text"
+      inputmode="numeric"
+      placeholder="Enter Bale ID"
+      style="
+        width:100%;
+        box-sizing:border-box;
+        padding:12px;
+        border-radius:10px;
+        background:#222;
+        color:white;
+        border:1px solid #444;
+        outline:none;
+        font-size:15px;
+      "
+    >
+
+  </div>
+
+  <div style="margin-bottom:15px;">
+
+    <div style="
+      color:#aaa;
+      font-size:13px;
+      margin-bottom:6px;
+    ">
+      Amount
+    </div>
+
+    <input
+      id="transferAmount"
+      type="number"
+      min="100"
+      step="1"
+      placeholder="Enter amount"
+      oninput="updateTransferInfo()"
+      style="
+        width:100%;
+        box-sizing:border-box;
+        padding:12px;
+        border-radius:10px;
+        background:#222;
+        color:white;
+        border:1px solid #444;
+        outline:none;
+        font-size:15px;
+      "
+    >
+
+  </div>
+
+  <div
+    id="transferInfo"
+    style="
+      background:#181818;
+      border:1px solid #333;
+      border-radius:12px;
+      padding:12px;
+      margin-bottom:15px;
+      font-size:13px;
+      line-height:1.8;
+    "
+  >
+  </div>
+
+  <button
+    onclick="executeTransfer()"
+    style="
+      width:100%;
+      padding:13px;
+      border:none;
+      border-radius:10px;
+      background:linear-gradient(90deg,gold,orange);
+      color:#111;
+      font-weight:bold;
+      font-size:15px;
+      cursor:pointer;
+    "
+  >
+    Send
+  </button>
+
+</div>
+  
 <div id="leaderOverlay"></div>
 
 <div id="leaderSheet">
@@ -873,6 +1078,16 @@ let profileCreatedAt = null;
 let globalRank = "-";
 let userLoaded = false;
 let pendingSave = false;
+
+// ===== TRANSFER SETTINGS =====
+
+const TRANSFER_FEE_PERCENT = 0.05;
+
+// حداقل مقدار انتقال
+const MIN_TRANSFER_COINS = 100;
+
+// ارزش هر Love Coin بر حسب Coins
+const LOVE_COIN_PRICE = 100000;
 
 
 // ✅ وقتی Bale آماده شد
