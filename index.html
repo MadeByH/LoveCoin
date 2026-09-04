@@ -1619,137 +1619,193 @@ function addXP(amount){
 
 
 // ===== CLICK SYSTEM SAFE =====
-function addCoin(x,y){
-  if(game.energy <= 0) return;
+function addCoin(x, y) {
+  if (game.energy <= 0) return;
 
-  let nowClick = Date.now();
-  let diffClick = nowClick - lastClickTime;
+  // ======================================
+  // ENERGY CHECK
+  // ======================================
+
+  if (game.energy < game.tapLevel) return;
+
+  const nowClick = Date.now();
+  const diffClick = nowClick - lastClickTime;
 
   lastClickTime = nowClick;
 
+
   // ======================================
-  // COMBO SPEED
-  // فقط کلیک‌های خیلی سریع Combo می‌سازند
+  // COMBO
+  // فقط کلیک‌های واقعاً سریع Combo می‌سازند
   // ======================================
 
-  if(diffClick > 0 && diffClick <= 250){
-    comboValue += 20;
+  if (diffClick > 0 && diffClick <= 220) {
+    comboValue += 15;
   }
-  else if(diffClick <= 320){
-    comboValue += 12;
+  else if (diffClick <= 300) {
+    comboValue += 10;
   }
-  else if(diffClick <= 400){
+  else if (diffClick <= 380) {
     comboValue += 5;
   }
-  else{
-    // کلیک معمولی → Combo نمی‌گیرد
-    comboValue = Math.max(0, comboValue - 5);
+  else {
+    // کلیک معمولی → Combo کاهش پیدا می‌کند
+    comboValue = Math.max(0, comboValue - 8);
   }
 
+
   // محدود کردن Combo
-  if(comboValue > comboMax){
+  if (comboValue > comboMax) {
     comboValue = comboMax;
   }
 
+
   // ======================================
-  // COMBO MULTIPLIER
-  // تا وقتی Combo کامل نشده، ضریب نداریم
+  // آیا Combo قبل از این کلیک فعال بود؟
   // ======================================
 
-  comboMultiplier = 1;
+  const comboWasActive = comboValue >= comboMax;
 
-  if(comboValue >= comboMax){
-    comboMultiplier = 2;
+
+  // ======================================
+  // MULTIPLIER
+  // فقط وقتی Combo کامل شده فعال می‌شود
+  // ======================================
+
+  comboMultiplier = comboWasActive ? 2 : 1;
+
+
+  // ======================================
+  // مصرف انرژی
+  // ======================================
+
+  game.energy -= game.tapLevel;
+
+
+  // ======================================
+  // پاداش اصلی کلیک
+  // ======================================
+
+  const earnedCoins = Math.floor(
+    game.tapLevel * comboMultiplier
+  );
+
+  game.coins += earnedCoins;
+
+
+  // ======================================
+  // XP
+  // ======================================
+
+  const randomChance = Math.random();
+  const winChance = 1 / 5;
+
+  if (randomChance < winChance) {
+    addXP(earnedCoins);
   }
 
-  // اگر Combo کامل شده، تایمرش تمدید شود
+
+  // ======================================
+  // COMBO TIMEOUT
+  // ======================================
+
   clearTimeout(comboTimeout);
 
-  if(comboValue > 0){
-    comboTimeout = setTimeout(()=>{
+  if (comboValue > 0) {
+    comboTimeout = setTimeout(() => {
       comboValue = 0;
       comboMultiplier = 1;
       updateComboUI();
     }, 1200);
   }
 
-  updateComboUI();
-  
-  if(game.energy < game.tapLevel) return;
-
-  game.energy -= game.tapLevel;
-
-  game.coins += Math.floor(game.tapLevel * comboMultiplier);
-  
-  const randomChance = Math.random();
-  const winChance = 1 / 5;
-  if (randomChance < winChance) {
-  addXP(Math.floor(game.tapLevel * comboMultiplier));
-  }
-
-// ✅ حالا کمبو افزایش پیدا کنه
-  comboValue += 15;
-
-  if(comboValue > comboMax){
-  comboValue = comboMax;
-}
-
-  if(comboValue >= comboMax){
-  comboMultiplier = 2;
-}
-
-  clearTimeout(comboTimeout);
-  comboTimeout = setTimeout(()=>{
-  comboValue = 0;
-  comboMultiplier = 1;
-  updateComboUI();
-},1000);
 
   updateComboUI();
 
+
+  // ======================================
   // انیمیشن ضربه
+  // ======================================
+
   const rect = coinImg.getBoundingClientRect();
-  const centerX = rect.left + rect.width/2;
-  const centerY = rect.top + rect.height/2;
+
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
 
   const offsetX = (x - centerX) / 8;
   const offsetY = (y - centerY) / 8;
 
-  coinImg.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(0.95)`;
-  setTimeout(()=>{
-  coinImg.style.transform = "translate(0,0) scale(1)";
-},120);
-  
-  // Floating text
-  if(settings.floatingText){
-  const plus = document.createElement("div");
-  plus.innerText = "+" + game.tapLevel;
-  plus.className = "plusOne";
-  plus.style.left = (x - 10) + "px";
-  plus.style.top = (y - 20) + "px";
-  document.getElementById("home").appendChild(plus);
-  setTimeout(()=>plus.remove(),1000);
+  coinImg.style.transform =
+    `translate(${offsetX}px, ${offsetY}px) scale(0.95)`;
 
-  plus.innerText = "+" + Math.floor(game.tapLevel * comboMultiplier);
+  setTimeout(() => {
+    coinImg.style.transform =
+      "translate(0,0) scale(1)";
+  }, 120);
 
-  if(comboMultiplier > 1 && comboValue >= comboMax){
-    plus.style.color = "#00f0ff";
-  }else{
-    plus.style.color = "gold";
+
+  // ======================================
+  // FLOATING TEXT
+  // ======================================
+
+  if (settings.floatingText) {
+
+    const plus = document.createElement("div");
+
+    plus.innerText = "+" + earnedCoins;
+
+    plus.className = "plusOne";
+
+    plus.style.left = (x - 10) + "px";
+    plus.style.top = (y - 20) + "px";
+
+
+    // فقط Combo واقعی → آبی
+    if (comboWasActive) {
+      plus.style.color = "#00f0ff";
+    }
+    else {
+      plus.style.color = "gold";
+    }
+
+
+    document.getElementById("home").appendChild(plus);
+
+    setTimeout(() => {
+      plus.remove();
+    }, 1000);
   }
-}
 
-  // Navigator
-  if (settings.vibration === true && navigator.vibrate) {
-    navigator.vibrate(50); // مقدار 50 میلی‌ثانیه
+
+  // ======================================
+  // VIBRATION
+  // ======================================
+
+  if (
+    settings.vibration === true &&
+    navigator.vibrate
+  ) {
+    navigator.vibrate(50);
   }
 
-  // ClickSound
-  if (settings.sound === true && typeof clickSound !== 'undefined') {
-    clickSound.currentTime = 0; // فایل صوتی را به ابتدای آن برمی‌گرداند
+
+  // ======================================
+  // SOUND
+  // ======================================
+
+  if (
+    settings.sound === true &&
+    typeof clickSound !== "undefined"
+  ) {
+    clickSound.currentTime = 0;
     clickSound.play();
   }
-  
+
+
+  // ======================================
+  // UI
+  // ======================================
+
   updateUI();
 }
 
