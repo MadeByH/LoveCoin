@@ -1501,6 +1501,7 @@ function updateProfile(){
   }
 
   document.getElementById("profileRank").innerText = globalRank;
+  document.getElementById("profileBaleId").innerText = baleUser?.id ?? "-";
     }
 
 
@@ -2114,6 +2115,100 @@ function claimDaily(){
     updateUI();
   }else{
     showCustomAlert("⏳ Come back tomorrow!");
+  }
+}
+
+
+function copyBaleId(){
+
+  const id = String(baleUser?.id ?? "");
+
+  if(!id){
+    showCustomAlert("❌ Bale ID not found!");
+    return;
+  }
+
+  navigator.clipboard.writeText(id)
+    .then(()=>{
+      showCustomAlert("✅ Bale ID copied!");
+    })
+    .catch(()=>{
+      showCustomAlert("❌ Could not copy Bale ID!");
+    });
+}
+
+function openTransfer(){
+
+  document.getElementById("transferOverlay")
+    .classList.add("active");
+
+  document.getElementById("transferSheet")
+    .classList.add("active");
+
+  document.getElementById("transferReceiver").value = "";
+  document.getElementById("transferAmount").value = "";
+
+  updateTransferInfo();
+}
+
+function closeTransfer(){
+
+  document.getElementById("transferOverlay")
+    .classList.remove("active");
+
+  document.getElementById("transferSheet")
+    .classList.remove("active");
+}
+
+function updateTransferInfo(){
+
+  const currency =
+    document.getElementById("transferCurrency").value;
+
+  const amount =
+    Number(document.getElementById("transferAmount").value);
+
+  const info =
+    document.getElementById("transferInfo");
+
+  if(!amount || amount <= 0){
+
+    info.innerHTML = `
+      Fee: 5%
+    `;
+
+    return;
+  }
+
+
+  if(currency === "coins"){
+
+    const fee = Math.ceil(
+      amount * TRANSFER_FEE_PERCENT
+    );
+
+    const received = amount - fee;
+
+    info.innerHTML = `
+      Amount: <b>${formatNumber(amount)}</b> Coins<br>
+      Fee: <b>${formatNumber(fee)}</b> Coins<br>
+      Receiver gets: <b>${formatNumber(received)}</b> Coins
+    `;
+
+  }
+  else{
+
+    const feeCoins = Math.ceil(
+      amount *
+      LOVE_COIN_PRICE *
+      TRANSFER_FEE_PERCENT
+    );
+
+    info.innerHTML = `
+      Amount: <b>${formatNumber(amount)}</b> Love Coins<br>
+      Fee: <b>${formatNumber(feeCoins)}</b> Coins<br>
+      Love Coin value: <b>${formatNumber(LOVE_COIN_PRICE)}</b> Coins
+    `;
   }
 }
   
